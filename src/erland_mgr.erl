@@ -1,11 +1,11 @@
 -module(erland_mgr).
 
--callback create(Name :: binary(), Id :: binary(), Listener :: pid()) -> ok.
--callback content(
+-callback create(Name :: binary(), Id :: binary(), Listener :: pid()) -> term().
+-callback set(
     Name :: binary(),
-    Deps :: list({Name :: binary(), Version :: binary()}),
+    Deps :: map(),
     Content :: binary(),
     Id :: binary(),
     Listener :: pid()
-) -> ok.
--callback run(Name :: binary(), Id :: binary(), Listener :: pid()) -> ok.
+) -> term().
+-callback run(Name :: binary(), Id :: binary(), Listener :: pid()) -> term().

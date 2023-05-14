@@ -1,5 +1,4 @@
 -module(erland_erl_mgr).
-
 -behaviour(erland_mgr).
 
 -define(MODULE_REBAR_CONFIG,
@@ -7,7 +6,6 @@
     "{escript_incl_apps, [testing]}.\n"
     "{escript_main_app, testing}.\n"
     "{escript_name, testing}.\n"
-    "{escript_emu_args, \"%%! +sbtu +A1~n\"}.\n"
     "{profiles, [{test, [{erl_opts, [debug_info]}]}]}.\n"
 ).
 
@@ -17,46 +15,81 @@
     "\n"
 ).
 
+-define(MODULE_APP_SRC,
+    "{application, testing, [\n"
+    "  {description, \"Erland playground template for rebar3\"},\n"
+    "  {vsn, \"0.0.0\"},\n"
+    "  {registered, []},\n"
+    "  {applications, [~s]},\n"
+    "  {env, []},\n"
+    "  {modules, []},\n"
+    "  {licenses, []},\n"
+    "  {links, []}\n"
+    "]}."
+).
+
+-define(RUN_SH,
+    "export COMPILED_BINARY=./_build/default/bin/testing;\n"
+    "rm \\$COMPILED_BINARY >/dev/null 2>&1;\n"
+    "rebar3 do compile, escriptize || { exit 1; };\n"
+    "\\$COMPILED_BINARY;"
+).
+
 -export([
     create/3,
-    content/5,
+    set/5,
     run/3
 ]).
 
+create(<<"testing">>, Id, Listener) ->
+    Listener ! {{command, create}, Id, {error, unique}};
 create(Name, Id, Listener) ->
     case filelib:is_dir(Name) of
         true ->
-            Listener ! {{command, create}, Id, {error, already_exists}};
+            Listener ! {{command, create}, Id, {error, exists}};
         false ->
             Command = io_lib:format(
-                "git clone https://github.com/erland-beam/rebar3-template.git ~s", [Name]
+                "rebar3 new escript testing && "
+                "echo \"~s\" > testing/run.sh && "
+                "chmod +x testing/run.sh && "
+                "mv testing ~s",
+                [?RUN_SH, Name]
             ),
-
             erland_cmd:run(".", Command, Id, create, Listener)
-    end,
-    ok.
+    end.
 
-content(Name, Deps, Content, Id, Listener) ->
+set(Name, Deps, Content, Id, Listener) ->
+    DepsFormat = lists:join(
+        ", ",
+        lists:map(
+            fun({Key, Value}) -> io_lib:format("{~s, \"~s\"}", [Key, Value]) end, maps:to_list(Deps)
+        )
+    ),
+
     RebarConfigFile = io_lib:format("./~s/rebar.config", [Name]),
-    RebarConfigContent = io_lib:format("~s{deps, ~p}.\n", [?MODULE_REBAR_CONFIG, Deps]),
+    RebarConfigContent = io_lib:format("~s{deps, [~s]}.\n", [?MODULE_REBAR_CONFIG, DepsFormat]),
 
     case file:write_file(RebarConfigFile, RebarConfigContent) of
-        {error, _Reason} ->
-            Listener ! {{command, content}, Id, {error, not_exists}};
         ok ->
             ModuleFile = io_lib:format("./~s/src/testing.erl", [Name]),
             ModuleContent = [?MODULE_FILE_HEADER | Content],
 
-            Result = file:write_file(ModuleFile, ModuleContent),
-            Listener ! {{command, content}, Id, Result}
-    end,
-    ok.
+            file:write_file(ModuleFile, ModuleContent),
+
+            AppsFormat = lists:flatten(
+                lists:join(
+                    ", ", lists:map(fun(Key) -> io_lib:format("~s", [Key]) end, maps:keys(Deps))
+                )
+            ),
+
+            AppFile = io_lib:format("./~s/src/testing.app.src", [Name]),
+            AppContent = io_lib:format(?MODULE_APP_SRC, [AppsFormat]),
+
+            Result = file:write_file(AppFile, AppContent),
+            Listener ! {{command, set}, Id, Result};
+        {error, _Reason} ->
+            Listener ! {{command, set}, Id, {error, perm}}
+    end.
 
 run(Name, Id, Listener) ->
-    case filelib:is_dir(Name) of
-        true ->
-            erland_cmd:run(Name, "./run.sh", Id, run, Listener);
-        false ->
-            Listener ! {{command, run}, Id, {error, not_exists}}
-    end,
-    ok.
+    erland_cmd:run(Name, "./run.sh", Id, run, Listener).
