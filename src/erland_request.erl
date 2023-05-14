@@ -9,11 +9,17 @@ handle(
 ) when is_binary(Name) ->
     erland_erl_mgr:create(Name, Id, Listener);
 handle(
+    #{<<"id">> := Id, <<"method">> := <<"create">>, <<"params">> := [<<"elixir">>, Name]}, Listener
+) when is_binary(Name) ->
+    erland_ex_mgr:create(Name, Id, Listener);
+handle(
     #{<<"id">> := Id, <<"method">> := <<"set">>, <<"params">> := [Deps, Content, Name]}, Listener
 ) when is_map(Deps), is_binary(Content), is_binary(Name) ->
     case find_language(Name) of
         erlang ->
             erland_erl_mgr:set(Name, Deps, Content, Id, Listener);
+        elixir ->
+            erland_ex_mgr:set(Name, Deps, Content, Id, Listener);
         null ->
             handle({fallback, Id}, Listener)
     end;
@@ -23,6 +29,8 @@ handle(
     case find_language(Name) of
         erlang ->
             erland_erl_mgr:run(Name, Id, Listener);
+        elixir ->
+            erland_ex_mgr:run(Name, Id, Listener);
         null ->
             handle({fallback, Id}, Listener)
     end;
