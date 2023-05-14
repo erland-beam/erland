@@ -1,8 +1,8 @@
 -module(erland_cmd).
 
--export([run/4]).
+-export([run/5]).
 
-run(Directory, Command, Id, Listener) ->
+run(Directory, Command, Id, Type, Listener) ->
     Args = io_lib:format("cd ~s && TERM=dumb ~s", [Directory, Command]),
 
     spawn(fun() ->
@@ -13,16 +13,18 @@ run(Directory, Command, Id, Listener) ->
             {args, ["-c", Args]}
         ]),
 
-        handle_output(Port, Id, Listener)
+        handle_output(Port, Id, Type, Listener)
     end).
 
-handle_output(Port, Id, Listener) ->
+handle_output(Port, Id, Type, Listener) ->
     receive
         {Port, {data, Data}} ->
-            Listener ! {command, Id, Data},
-            handle_output(Port, Id, Listener);
+            Listener ! {{command, Type}, Id, Data},
+            handle_output(Port, Id, Type, Listener);
         {Port, {exit_status, 0}} ->
-            Listener ! {command, ok};
+            Listener ! {{command, Type}, Id, ok};
         {Port, {exit_status, Error}} ->
-            Listener ! {command, {error, Error}}
+            Listener ! {{command, Type}, Id, {error, Error}};
+        _Other ->
+            handle_output(Port, Id, Type, Listener)
     end.
