@@ -18,7 +18,7 @@ run(Directory, Command, Id, Type, Listener) ->
 
 handle_output(Port, Id, Type, Listener) ->
     receive
-        {Port, {data, Data}} ->
+        {Port, {data, _Data} = Data} ->
             Listener ! {{command, Type}, Id, Data},
             handle_output(Port, Id, Type, Listener);
         {Port, {exit_status, 0}} ->
