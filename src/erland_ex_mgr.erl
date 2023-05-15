@@ -1,9 +1,8 @@
 %%% @doc Elixir manager for Erland.
 -module(erland_ex_mgr).
-
 -behaviour(erland_mgr).
 
--define(PLAYGROUND_PATH(Name), ["/tmp/erland/" | binary_to_list(Name)]).
+-include("./erland.hrl").
 
 -export([
     create/3,

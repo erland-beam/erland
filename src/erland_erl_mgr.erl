@@ -1,47 +1,8 @@
 %%% @doc Erlang manager for Erland.
 -module(erland_erl_mgr).
-
 -behaviour(erland_mgr).
 
-%% ---------------------------------------
-%% Following macros are for file contents.
-%% ---------------------------------------
-
--define(MODULE_REBAR_CONFIG,
-    "{erl_opts, [no_debug_info]}.\n"
-    "{escript_incl_apps, [testing]}.\n"
-    "{escript_main_app, testing}.\n"
-    "{escript_name, testing}.\n"
-    "{profiles, [{test, [{erl_opts, [debug_info]}]}]}.\n"
-).
-
--define(MODULE_FILE_HEADER,
-    "-module(testing).\n"
-    "-export([main/1]).\n"
-    "\n"
-).
-
--define(MODULE_APP_SRC,
-    "{application, testing, [\n"
-    "  {description, \"Erland playground template for rebar3\"},\n"
-    "  {vsn, \"0.0.0\"},\n"
-    "  {registered, []},\n"
-    "  {applications, [~s]},\n"
-    "  {env, []},\n"
-    "  {modules, []},\n"
-    "  {licenses, []},\n"
-    "  {links, []}\n"
-    "]}."
-).
-
--define(RUN_SH,
-    "export COMPILED_BINARY=./_build/default/bin/testing;\n"
-    "rm \\$COMPILED_BINARY >/dev/null 2>&1;\n"
-    "rebar3 do compile, escriptize || { exit 1; };\n"
-    "\\$COMPILED_BINARY;"
-).
-
--define(PLAYGROUND_PATH(Name), ["/tmp/erland/" | binary_to_list(Name)]).
+-include("./erland.hrl").
 
 -export([
     create/3,
@@ -63,7 +24,7 @@ create(Name, Id, Listener) ->
                 "echo \"~s\" > ./testing/run.sh && "
                 "chmod +x ./testing/run.sh && "
                 "mv ./testing ~s",
-                [?RUN_SH, FolderPath]
+                [?FILE_RUN_SH, FolderPath]
             ),
             erland_cmd:run(".", Command, Id, create, Listener)
     end.

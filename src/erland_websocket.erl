@@ -1,7 +1,8 @@
 %%% @doc Erland WebSocket server.
 -module(erland_websocket).
-
 -behaviour(cowboy_websocket).
+
+-include("./erland.hrl").
 
 -export([init/2]).
 -export([
@@ -9,33 +10,6 @@
     websocket_handle/2,
     websocket_info/2
 ]).
-
-%% ------------------------------------------
-%% Following macros are for response payload.
-%% ------------------------------------------
-
--define(PAYLOAD_OK(Id),
-    jiffy:encode(#{
-        <<"id">> => Id,
-        <<"type">> => 0
-    })
-).
-
--define(PAYLOAD_ERR(Id, Message),
-    jiffy:encode(#{
-        <<"id">> => Id,
-        <<"type">> => 1,
-        <<"data">> => Message
-    })
-).
-
--define(PAYLOAD_PACKET(Id, Message),
-    jiffy:encode(#{
-        <<"id">> => Id,
-        <<"type">> => 2,
-        <<"data">> => Message
-    })
-).
 
 %% --------------------------------------
 %% Following functions are for WebSocket.

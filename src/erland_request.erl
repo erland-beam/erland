@@ -1,6 +1,8 @@
 %%% @doc Request handler for WebSocket.
 -module(erland_request).
 
+-include("./erland.hrl").
+
 -export([
     handle/2
 ]).
@@ -50,13 +52,8 @@ handle(
 handle(
     #{<<"id">> := Id, <<"method">> := <<"delete">>, <<"params">> := [Name]}, Listener
 ) when is_binary(Name) ->
-    case find_language(Name) of
-        null ->
-            handle({fallback, Id}, Listener);
-        _Other ->
-            Result = file:del_dir_r(["/tmp/erland/" | binary_to_list(Name)]),
-            Listener ! {{command, delete}, Id, Result}
-    end;
+    FolderPath = ?PLAYGROUND_PATH(Name),
+    Listener ! {{command, delete}, Id, file:del_dir_r(FolderPath)};
 %% ------------------------------------------------
 %% Following functions are for handling edge cases.
 %% ------------------------------------------------
@@ -70,7 +67,7 @@ handle(_Request, _Listener) ->
 %% -------------------------------------------
 
 find_language(Name) ->
-    FolderPath = ["/tmp/erland/" | binary_to_list(Name)],
+    FolderPath = ?PLAYGROUND_PATH(Name),
 
     case filelib:is_dir(FolderPath) of
         true ->
