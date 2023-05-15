@@ -82,7 +82,10 @@ set(Name, Deps, Content, Id, Listener) ->
 
             AppsFormat = lists:flatten(
                 lists:join(
-                    ", ", lists:map(fun(Key) -> binary_to_list(Key) end, maps:keys(Deps))
+                    ", ",
+                    lists:map(fun(Key) -> binary_to_list(Key) end, [
+                        <<"kernel">>, <<"stdlib">> | maps:keys(Deps)
+                    ])
                 )
             ),
 
