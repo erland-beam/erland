@@ -10,20 +10,24 @@
 create(<<"testing">>, Id, Listener) ->
     Listener ! {{command, create}, Id, {error, unique}};
 create(Name, Id, Listener) ->
-    case filelib:is_dir(Name) of
+    FolderPath = ["./" | binary_to_list(Name)],
+
+    case filelib:is_dir(FolderPath) of
         true ->
             Listener ! {{command, create}, Id, {error, exists}};
         false ->
             Command = io_lib:format(
                 "mkdir testing && "
-                "echo \"IO.puts :ok\" > testing/testing.exs &&"
-                "mv testing ~s",
-                [Name]
+                "echo \"IO.puts :ok\" > ./testing/testing.exs &&"
+                "mv ./testing ~s",
+                [FolderPath]
             ),
             erland_cmd:run(".", Command, Id, create, Listener)
     end.
 
 set(Name, Deps, Content, Id, Listener) ->
+    FolderPath = ["./" | binary_to_list(Name)],
+
     DepsFormat = lists:join(
         ", ",
         lists:map(
@@ -32,7 +36,7 @@ set(Name, Deps, Content, Id, Listener) ->
         )
     ),
 
-    FileName = io_lib:format("~s/testing.exs", [Name]),
+    FileName = [FolderPath | "/testing.exs"],
     FileContent = io_lib:format("Mix.install([~s])\n\n~s", [DepsFormat, Content]),
 
     Result = file:write_file(FileName, FileContent),

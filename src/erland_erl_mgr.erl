@@ -44,21 +44,25 @@
 create(<<"testing">>, Id, Listener) ->
     Listener ! {{command, create}, Id, {error, unique}};
 create(Name, Id, Listener) ->
-    case filelib:is_dir(Name) of
+    FolderPath = ["./" | binary_to_list(Name)],
+
+    case filelib:is_dir(FolderPath) of
         true ->
             Listener ! {{command, create}, Id, {error, exists}};
         false ->
             Command = io_lib:format(
                 "rebar3 new escript testing && "
-                "echo \"~s\" > testing/run.sh && "
-                "chmod +x testing/run.sh && "
-                "mv testing ~s",
-                [?RUN_SH, Name]
+                "echo \"~s\" > ./testing/run.sh && "
+                "chmod +x ./testing/run.sh && "
+                "mv ./testing ~s",
+                [?RUN_SH, FolderPath]
             ),
             erland_cmd:run(".", Command, Id, create, Listener)
     end.
 
 set(Name, Deps, Content, Id, Listener) ->
+    FolderPath = ["./" | binary_to_list(Name)],
+
     DepsFormat = lists:join(
         ", ",
         lists:map(
@@ -66,28 +70,29 @@ set(Name, Deps, Content, Id, Listener) ->
         )
     ),
 
-    RebarConfigFile = io_lib:format("./~s/rebar.config", [Name]),
+    RebarConfigFile = [FolderPath | "/rebar.config"],
     RebarConfigContent = io_lib:format("~s{deps, [~s]}.\n", [?MODULE_REBAR_CONFIG, DepsFormat]),
 
     case file:write_file(RebarConfigFile, RebarConfigContent) of
         ok ->
-            ModuleFile = io_lib:format("./~s/src/testing.erl", [Name]),
+            ModuleFile = [FolderPath | "/src/testing.erl"],
             ModuleContent = [?MODULE_FILE_HEADER | Content],
 
             file:write_file(ModuleFile, ModuleContent),
 
             AppsFormat = lists:flatten(
                 lists:join(
-                    ", ", lists:map(fun(Key) -> io_lib:format("~s", [Key]) end, maps:keys(Deps))
+                    ", ", lists:map(fun(Key) -> binary_to_list(Key) end, maps:keys(Deps))
                 )
             ),
 
-            AppFile = io_lib:format("./~s/src/testing.app.src", [Name]),
+            AppFile = [FolderPath | "/src/testing.app.src"],
             AppContent = io_lib:format(?MODULE_APP_SRC, [AppsFormat]),
 
             Result = file:write_file(AppFile, AppContent),
             Listener ! {{command, set}, Id, Result};
-        {error, _Reason} ->
+        {error, Reason} ->
+            io:format("lol ~p~n", [Reason]),
             Listener ! {{command, set}, Id, {error, perm}}
     end.
 
