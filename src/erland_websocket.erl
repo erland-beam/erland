@@ -63,6 +63,9 @@ websocket_info({{command, run}, Id, {data, Data}}, State) ->
 websocket_info({{command, run}, Id, {error, _Reason}}, State) ->
     Payload = ?PAYLOAD_ERR(Id, <<"App failed to run">>),
     {[{text, Payload}], State};
+websocket_info({{command, delete}, Id, {error, _Reason}}, State) ->
+    Payload = ?PAYLOAD_ERR(Id, <<"Failed to delete playground">>),
+    {[{text, Payload}], State};
 websocket_info({fallback, Id}, State) ->
     Payload = ?PAYLOAD_ERR(Id, <<"Playground with given name not exists">>),
     {[{text, Payload}], State};

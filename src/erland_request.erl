@@ -41,8 +41,8 @@ handle(
         null ->
             handle({fallback, Id}, Listener);
         _Other ->
-            file:del_dir(["./" | binary_to_list(Name)], [recursive, force]),
-            Listener ! {{command, delete}, Id, ok}
+            Result = file:del_dir_r(["./" | binary_to_list(Name)]),
+            Listener ! {{command, delete}, Id, Result}
     end;
 handle({fallback, Id}, Listener) ->
     Listener ! {fallback, Id};
