@@ -34,6 +34,16 @@ handle(
         null ->
             handle({fallback, Id}, Listener)
     end;
+handle(
+    #{<<"id">> := Id, <<"method">> := <<"delete">>, <<"params">> := [Name]}, Listener
+) when is_binary(Name) ->
+    case find_language(Name) of
+        null ->
+            handle({fallback, Id}, Listener);
+        _Other ->
+            file:del_dir(["./" | binary_to_list(Name)], [recursive, force]),
+            Listener ! {{command, delete}, Id, ok}
+    end;
 handle({fallback, Id}, Listener) ->
     Listener ! {fallback, Id};
 handle(_Request, _Listener) ->
