@@ -1,6 +1,6 @@
 {application, erland, [
-    {description, "An OTP application"},
-    {vsn, "0.1.0"},
+    {description, "Self-hosted playground server"},
+    {vsn, "1.0.0-alpha"},
     {registered, []},
     {mod, {erland_app, []}},
     {applications, [
@@ -15,6 +15,6 @@
     {env, []},
     {modules, []},
 
-    {licenses, ["Apache-2.0"]},
+    {licenses, ["AGPL-3.0"]},
     {links, []}
 ]}.

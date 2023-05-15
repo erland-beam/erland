@@ -4,6 +4,13 @@
 -export([start/2, stop/1]).
 
 start(_StartType, _StartArgs) ->
+    % Create /tmp/erland if not exists
+    case filelib:is_dir("/tmp/erland") of
+        false -> file:make_dir("/tmp/erland");
+        true -> noop
+    end,
+
+    % Start web server
     Dispatch = cowboy_router:compile([
         {'_', [
             {"/", erland_websocket, []}

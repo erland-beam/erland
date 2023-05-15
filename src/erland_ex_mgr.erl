@@ -3,6 +3,8 @@
 
 -behaviour(erland_mgr).
 
+-define(PLAYGROUND_PATH(Name), ["/tmp/erland/" | binary_to_list(Name)]).
+
 -export([
     create/3,
     set/5,
@@ -12,7 +14,7 @@
 create(<<"testing">>, Id, Listener) ->
     Listener ! {{command, create}, Id, {error, unique}};
 create(Name, Id, Listener) ->
-    FolderPath = ["./" | binary_to_list(Name)],
+    FolderPath = ?PLAYGROUND_PATH(Name),
 
     case filelib:is_dir(FolderPath) of
         true ->
@@ -28,7 +30,7 @@ create(Name, Id, Listener) ->
     end.
 
 set(Name, Deps, Content, Id, Listener) ->
-    FolderPath = ["./" | binary_to_list(Name)],
+    FolderPath = ?PLAYGROUND_PATH(Name),
 
     DepsFormat = lists:join(
         ", ",
@@ -45,4 +47,4 @@ set(Name, Deps, Content, Id, Listener) ->
     Listener ! {{command, set}, Id, Result}.
 
 run(Name, Id, Listener) ->
-    erland_cmd:run(Name, "elixir testing.exs", Id, run, Listener).
+    erland_cmd:run(?PLAYGROUND_PATH(Name), "elixir testing.exs", Id, run, Listener).

@@ -41,6 +41,8 @@
     "\\$COMPILED_BINARY;"
 ).
 
+-define(PLAYGROUND_PATH(Name), ["/tmp/erland/" | binary_to_list(Name)]).
+
 -export([
     create/3,
     set/5,
@@ -50,7 +52,7 @@
 create(<<"testing">>, Id, Listener) ->
     Listener ! {{command, create}, Id, {error, unique}};
 create(Name, Id, Listener) ->
-    FolderPath = ["./" | binary_to_list(Name)],
+    FolderPath = ?PLAYGROUND_PATH(Name),
 
     case filelib:is_dir(FolderPath) of
         true ->
@@ -67,7 +69,7 @@ create(Name, Id, Listener) ->
     end.
 
 set(Name, Deps, Content, Id, Listener) ->
-    FolderPath = ["./" | binary_to_list(Name)],
+    FolderPath = ?PLAYGROUND_PATH(Name),
 
     % Create format for rebar.config
     DepsFormat = lists:join(
@@ -109,4 +111,4 @@ set(Name, Deps, Content, Id, Listener) ->
     end.
 
 run(Name, Id, Listener) ->
-    erland_cmd:run(Name, "./run.sh", Id, run, Listener).
+    erland_cmd:run(?PLAYGROUND_PATH(Name), "./run.sh", Id, run, Listener).

@@ -54,7 +54,7 @@ handle(
         null ->
             handle({fallback, Id}, Listener);
         _Other ->
-            Result = file:del_dir_r(["./" | binary_to_list(Name)]),
+            Result = file:del_dir_r(["/tmp/erland/" | binary_to_list(Name)]),
             Listener ! {{command, delete}, Id, Result}
     end;
 %% ------------------------------------------------
@@ -70,9 +70,11 @@ handle(_Request, _Listener) ->
 %% -------------------------------------------
 
 find_language(Name) ->
-    case filelib:is_dir(Name) of
+    FolderPath = ["/tmp/erland/" | binary_to_list(Name)],
+
+    case filelib:is_dir(FolderPath) of
         true ->
-            RebarConfig = io_lib:format("./~s/rebar.config", [Name]),
+            RebarConfig = [FolderPath | "/rebar.config"],
 
             case filelib:is_file(RebarConfig) of
                 true ->
