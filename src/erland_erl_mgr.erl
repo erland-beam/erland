@@ -1,5 +1,11 @@
+%%% @doc Erlang manager for Erland.
 -module(erland_erl_mgr).
+
 -behaviour(erland_mgr).
+
+%% ---------------------------------------
+%% Following macros are for file contents.
+%% ---------------------------------------
 
 -define(MODULE_REBAR_CONFIG,
     "{erl_opts, [no_debug_info]}.\n"
@@ -63,6 +69,7 @@ create(Name, Id, Listener) ->
 set(Name, Deps, Content, Id, Listener) ->
     FolderPath = ["./" | binary_to_list(Name)],
 
+    % Create format for rebar.config
     DepsFormat = lists:join(
         ", ",
         lists:map(
@@ -73,13 +80,16 @@ set(Name, Deps, Content, Id, Listener) ->
     RebarConfigFile = [FolderPath | "/rebar.config"],
     RebarConfigContent = io_lib:format("~s{deps, [~s]}.\n", [?MODULE_REBAR_CONFIG, DepsFormat]),
 
+    % Try to write contents (if success all other files must also exists too)
     case file:write_file(RebarConfigFile, RebarConfigContent) of
         ok ->
+            % Update main file
             ModuleFile = [FolderPath | "/src/testing.erl"],
             ModuleContent = [?MODULE_FILE_HEADER | Content],
 
             file:write_file(ModuleFile, ModuleContent),
 
+            % Update .app.src file
             AppsFormat = lists:flatten(
                 lists:join(
                     ", ",
@@ -94,8 +104,7 @@ set(Name, Deps, Content, Id, Listener) ->
 
             Result = file:write_file(AppFile, AppContent),
             Listener ! {{command, set}, Id, Result};
-        {error, Reason} ->
-            io:format("lol ~p~n", [Reason]),
+        {error, _Reason} ->
             Listener ! {{command, set}, Id, {error, perm}}
     end.
 

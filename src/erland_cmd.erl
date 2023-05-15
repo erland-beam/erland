@@ -1,3 +1,4 @@
+%%% @doc Shell runner which gives us real-time information about state.
 -module(erland_cmd).
 
 -export([run/5]).
@@ -15,6 +16,10 @@ run(Directory, Command, Id, Type, Listener) ->
 
         handle_output(Port, Id, Type, Listener)
     end).
+
+%% -------------------------------------------
+%% Following functions are for internal usage.
+%% -------------------------------------------
 
 handle_output(Port, Id, Type, Listener) ->
     receive

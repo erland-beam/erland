@@ -1,4 +1,6 @@
+%%% @doc Elixir manager for Erland.
 -module(erland_ex_mgr).
+
 -behaviour(erland_mgr).
 
 -export([
@@ -18,7 +20,7 @@ create(Name, Id, Listener) ->
         false ->
             Command = io_lib:format(
                 "mkdir testing && "
-                "echo \"IO.puts :ok\" > ./testing/testing.exs &&"
+                "echo \"IO.puts :ok\" > ./testing/testing.exs && "
                 "mv ./testing ~s",
                 [FolderPath]
             ),

@@ -13,5 +13,3 @@ init([]) ->
     SupFlags = #{strategy => one_for_all},
     ChildSpecs = [],
     {ok, {SupFlags, ChildSpecs}}.
-
-%% internal functions
