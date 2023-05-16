@@ -14,13 +14,12 @@ create(<<"testing">>, Id, Listener) ->
     Listener ! {{command, create}, Id, {error, unique}};
 create(Name, Id, Listener) ->
     FolderPath = ?PLAYGROUND_PATH(Name),
-
     case filelib:is_dir(FolderPath) of
         true ->
             Listener ! {{command, create}, Id, {error, exists}};
         false ->
             Command = io_lib:format(
-                "rebar3 new escript testing && "
+                "TERM=dumb rebar3 new escript testing && "
                 "echo \"~s\" > ./testing/run.sh && "
                 "chmod +x ./testing/run.sh && "
                 "mv ./testing ~s",

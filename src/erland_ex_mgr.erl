@@ -46,4 +46,4 @@ set(Name, Deps, Content, Id, Listener) ->
     Listener ! {{command, set}, Id, Result}.
 
 run(Name, Id, Listener) ->
-    erland_cmd:run(?PLAYGROUND_PATH(Name), "elixir testing.exs", Id, run, Listener).
+    erland_cmd:run(?PLAYGROUND_PATH(Name), "TERM=dumb elixir testing.exs", Id, run, Listener).

@@ -10,7 +10,8 @@
         cowboy,
         compiler,
         syntax_tools,
-        jiffy
+        jiffy,
+        inets
     ]},
     {env, []},
     {modules, []},

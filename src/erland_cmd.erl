@@ -4,13 +4,15 @@
 -export([run/5]).
 
 run(Directory, Command, Id, Type, Listener) ->
-    Args = io_lib:format("cd ~s && TERM=dumb ~s", [Directory, Command]),
+    Args = io_lib:format("cd ~s && ~s", [Directory, Command]),
 
     spawn(fun() ->
-        Port = open_port({spawn_executable, "/bin/sh"}, [
+        Port = open_port({spawn_executable, "/bin/bash"}, [
             stderr_to_stdout,
-            binary,
+            in,
             exit_status,
+            binary,
+            stream,
             {args, ["-c", Args]}
         ]),
 
