@@ -4,11 +4,6 @@ Erland is a self-hosted playground server for Erlang/Elixir.
 
 Erland allows you to add dependencies, host multiple playgrounds, receive real-time output and guarantees security together with containerization.
 
-## Protocol
+## Moving to Rust
 
-Erland protocol is built on top of the WebSocket. You can [view official implementation](https://github.com/erland-beam/erland.ts) for more information.
-
-## Usage
-
-You can also run Erland from your computer without Docker, but we do not recommend it. The best way to use Erland is Docker.
-
+We are moving to Rust for our server. Due to file operations and running shell commands, Rust is a better choice for performance. Of course, playground is still focuses on BEAM ecosystem.
