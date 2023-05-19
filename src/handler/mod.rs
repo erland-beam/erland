@@ -9,6 +9,7 @@ use axum::extract::ws::{Message, WebSocket};
 use futures::{stream::SplitSink, SinkExt};
 use tokio::{fs, sync::RwLock};
 
+mod elixir;
 mod erlang;
 
 pub type WebSocketSender = Arc<RwLock<SplitSink<WebSocket, Message>>>;
@@ -48,15 +49,17 @@ async fn handle_create(
         return;
     }
 
-    match env {
-        PlaygroundEnvironment::Erlang => match erlang::create(name).await {
-            Ok(()) => guard
-                .send(PlaygroundResponse::ok(id).to_message())
-                .await
-                .ok(),
-            Err(error) => guard.send(error.to_response(id).to_message()).await.ok(),
-        },
-        PlaygroundEnvironment::Elixir => todo!(),
+    let result = match env {
+        PlaygroundEnvironment::Erlang => erlang::create(name).await,
+        PlaygroundEnvironment::Elixir => elixir::create(name).await,
+    };
+
+    match result {
+        Ok(()) => guard
+            .send(PlaygroundResponse::ok(id).to_message())
+            .await
+            .ok(),
+        Err(error) => guard.send(error.to_response(id).to_message()).await.ok(),
     };
 }
 
@@ -68,42 +71,44 @@ async fn handle_update(
 ) {
     let mut guard = sender.write().await;
 
-    match find_environment(&name).await {
-        None => {
-            let error = result::Error::NotExist.to_response(id).to_message();
-            guard.send(error).await.ok();
-        }
-        Some(PlaygroundEnvironment::Erlang) => {
-            match erlang::update(name, content, dependencies).await {
-                Ok(()) => guard
-                    .send(PlaygroundResponse::ok(id).to_message())
-                    .await
-                    .ok(),
-                Err(error) => guard.send(error.to_response(id).to_message()).await.ok(),
-            };
-        }
-        Some(PlaygroundEnvironment::Elixir) => todo!(),
-    };
+    if let Some(env) = find_environment(&name).await {
+        let result = match env {
+            PlaygroundEnvironment::Erlang => erlang::update(name, content, dependencies).await,
+            PlaygroundEnvironment::Elixir => elixir::update(name, content, dependencies).await,
+        };
+
+        match result {
+            Ok(()) => guard
+                .send(PlaygroundResponse::ok(id).to_message())
+                .await
+                .ok(),
+            Err(error) => guard.send(error.to_response(id).to_message()).await.ok(),
+        };
+    } else {
+        let error = result::Error::NotExist.to_response(id).to_message();
+        guard.send(error).await.ok();
+    }
 }
 
 async fn handle_run(pack: WebSocketPack, name: String) {
-    match find_environment(&name).await {
-        None => {
-            let error = result::Error::NotExist.to_response(pack.id).to_message();
-            pack.sender.write().await.send(error).await.ok();
+    if let Some(env) = find_environment(&name).await {
+        let result = match env {
+            PlaygroundEnvironment::Erlang => erlang::run(&pack, name).await,
+            PlaygroundEnvironment::Elixir => elixir::run(&pack, name).await,
+        };
+
+        if let Err(error) = result {
+            pack.sender
+                .write()
+                .await
+                .send(error.to_response(pack.id).to_message())
+                .await
+                .ok();
         }
-        Some(PlaygroundEnvironment::Erlang) => {
-            if let Err(error) = erlang::run(&pack, name).await {
-                pack.sender
-                    .write()
-                    .await
-                    .send(error.to_response(pack.id).to_message())
-                    .await
-                    .ok();
-            }
-        }
-        Some(PlaygroundEnvironment::Elixir) => todo!(),
-    };
+    } else {
+        let error = result::Error::NotExist.to_response(pack.id).to_message();
+        pack.sender.write().await.send(error).await.ok();
+    }
 }
 
 async fn find_environment(name: &str) -> Option<PlaygroundEnvironment> {
