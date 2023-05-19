@@ -2,7 +2,7 @@ use std::{collections::HashMap, sync::Arc};
 
 use crate::{
     messaging::{PlaygroundEnvironment, PlaygroundRequest, PlaygroundResponse},
-    result,
+    result, send_err, send_ok,
 };
 
 use axum::extract::ws::{Message, WebSocket};
@@ -35,42 +35,28 @@ pub async fn handle(PlaygroundRequest { id, message }: PlaygroundRequest, sender
     }
 }
 
-async fn handle_create(
-    WebSocketPack { id, sender }: WebSocketPack,
-    name: String,
-    env: PlaygroundEnvironment,
-) {
-    let mut guard = sender.write().await;
+async fn handle_create(pack: WebSocketPack, name: String, env: PlaygroundEnvironment) {
+    if find_environment(&name).await.is_none() {
+        let result = match env {
+            PlaygroundEnvironment::Erlang => erlang::create(name).await,
+            PlaygroundEnvironment::Elixir => elixir::create(name).await,
+        };
 
-    if let Some(_) = find_environment(&name).await {
-        let error = result::Error::Exist.to_response(id).to_message();
-        guard.send(error).await.ok();
-
-        return;
+        match result {
+            Ok(()) => send_ok!(pack),
+            Err(error) => send_err!(pack, error),
+        };
+    } else {
+        send_err!(pack, result::Error::Exist);
     }
-
-    let result = match env {
-        PlaygroundEnvironment::Erlang => erlang::create(name).await,
-        PlaygroundEnvironment::Elixir => elixir::create(name).await,
-    };
-
-    match result {
-        Ok(()) => guard
-            .send(PlaygroundResponse::ok(id).to_message())
-            .await
-            .ok(),
-        Err(error) => guard.send(error.to_response(id).to_message()).await.ok(),
-    };
 }
 
 async fn handle_update(
-    WebSocketPack { id, sender }: WebSocketPack,
+    pack: WebSocketPack,
     name: String,
     content: String,
     dependencies: HashMap<String, String>,
 ) {
-    let mut guard = sender.write().await;
-
     if let Some(env) = find_environment(&name).await {
         let result = match env {
             PlaygroundEnvironment::Erlang => erlang::update(name, content, dependencies).await,
@@ -78,15 +64,11 @@ async fn handle_update(
         };
 
         match result {
-            Ok(()) => guard
-                .send(PlaygroundResponse::ok(id).to_message())
-                .await
-                .ok(),
-            Err(error) => guard.send(error.to_response(id).to_message()).await.ok(),
+            Ok(()) => send_ok!(pack),
+            Err(error) => send_err!(pack, error),
         };
     } else {
-        let error = result::Error::NotExist.to_response(id).to_message();
-        guard.send(error).await.ok();
+        send_err!(pack, result::Error::NotExist);
     }
 }
 
@@ -98,16 +80,10 @@ async fn handle_run(pack: WebSocketPack, name: String) {
         };
 
         if let Err(error) = result {
-            pack.sender
-                .write()
-                .await
-                .send(error.to_response(pack.id).to_message())
-                .await
-                .ok();
+            send_err!(pack, error);
         }
     } else {
-        let error = result::Error::NotExist.to_response(pack.id).to_message();
-        pack.sender.write().await.send(error).await.ok();
+        send_err!(pack, result::Error::NotExist);
     }
 }
 
