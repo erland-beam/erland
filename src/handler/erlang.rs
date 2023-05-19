@@ -1,4 +1,5 @@
-use crate::result;
+use super::WebSocketPack;
+use crate::{result, stream};
 
 use std::{collections::HashMap, process::Stdio};
 use tokio::fs;
@@ -68,7 +69,7 @@ macro_rules! format_script {
     };
 }
 
-pub async fn create(name: String) -> crate::result::Result<()> {
+pub async fn create(name: String) -> result::Result<()> {
     let path = format!("/tmp/erland/{name}");
     let command = format_command!(&path);
 
@@ -83,7 +84,7 @@ pub async fn update(
     name: String,
     content: String,
     dependencies: HashMap<String, String>,
-) -> crate::result::Result<()> {
+) -> result::Result<()> {
     let path = format!("/tmp/erland/{name}");
 
     let rebar_config_path = format!("{path}/rebar.config");
@@ -109,6 +110,7 @@ pub async fn update(
     Ok(())
 }
 
-pub async fn run(name: String) -> crate::result::Result<()> {
-    todo!()
+pub async fn run(pack: &WebSocketPack, name: String) -> result::Result<()> {
+    let command = format!("cd /tmp/erland/{name} && TERM=dumb ./run.sh");
+    stream::run(pack, command).await
 }

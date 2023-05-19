@@ -11,11 +11,11 @@ use tokio::{fs, sync::RwLock};
 
 mod erlang;
 
-type WebSocketSender = Arc<RwLock<SplitSink<WebSocket, Message>>>;
+pub type WebSocketSender = Arc<RwLock<SplitSink<WebSocket, Message>>>;
 
-struct WebSocketPack {
-    id: String,
-    sender: WebSocketSender,
+pub struct WebSocketPack {
+    pub id: String,
+    pub sender: WebSocketSender,
 }
 
 pub async fn handle(PlaygroundRequest { id, message }: PlaygroundRequest, sender: WebSocketSender) {
@@ -30,7 +30,7 @@ pub async fn handle(PlaygroundRequest { id, message }: PlaygroundRequest, sender
             content,
             dependencies,
         } => handle_update(pack, name, content, dependencies).await,
-        crate::messaging::PlaygroundMessage::Run(name) => todo!(),
+        crate::messaging::PlaygroundMessage::Run(name) => handle_run(pack, name).await,
     }
 }
 
@@ -81,6 +81,26 @@ async fn handle_update(
                     .ok(),
                 Err(error) => guard.send(error.to_response(id).to_message()).await.ok(),
             };
+        }
+        Some(PlaygroundEnvironment::Elixir) => todo!(),
+    };
+}
+
+async fn handle_run(pack: WebSocketPack, name: String) {
+    match find_environment(&name).await {
+        None => {
+            let error = result::Error::NotExist.to_response(pack.id).to_message();
+            pack.sender.write().await.send(error).await.ok();
+        }
+        Some(PlaygroundEnvironment::Erlang) => {
+            if let Err(error) = erlang::run(&pack, name).await {
+                pack.sender
+                    .write()
+                    .await
+                    .send(error.to_response(pack.id).to_message())
+                    .await
+                    .ok();
+            }
         }
         Some(PlaygroundEnvironment::Elixir) => todo!(),
     };

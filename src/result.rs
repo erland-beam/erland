@@ -1,6 +1,6 @@
 use thiserror::Error;
 
-use crate::messaging::PlaygroundResponse;
+use crate::messaging::{PlaygroundResponse, PlaygroundResponseType};
 
 pub type Result<T> = std::result::Result<T, self::Error>;
 
@@ -20,7 +20,7 @@ impl Error {
     pub fn to_response(self, id: String) -> PlaygroundResponse {
         PlaygroundResponse {
             id,
-            r#type: 1,
+            r#type: PlaygroundResponseType::Error,
             data: Some(self.to_string()),
         }
     }

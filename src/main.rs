@@ -1,5 +1,4 @@
 use std::net::SocketAddr;
-
 use tokio::fs;
 
 mod handler;
@@ -7,6 +6,7 @@ mod macros;
 mod messaging;
 mod result;
 mod server;
+mod stream;
 
 #[tokio::main]
 async fn main() {

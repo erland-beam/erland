@@ -2,19 +2,19 @@ use axum::extract::ws::Message;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize)]
 pub enum PlaygroundEnvironment {
     Erlang,
     Elixir,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize)]
 pub struct PlaygroundRequest {
     pub id: String,
     pub message: PlaygroundMessage,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize)]
 pub enum PlaygroundMessage {
     Create {
         name: String,
@@ -28,10 +28,17 @@ pub enum PlaygroundMessage {
     Run(String),
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize)]
+pub enum PlaygroundResponseType {
+    Ok,
+    Error,
+    Data,
+}
+
+#[derive(Serialize)]
 pub struct PlaygroundResponse {
     pub id: String,
-    pub r#type: usize,
+    pub r#type: PlaygroundResponseType,
     pub data: Option<String>,
 }
 
@@ -43,7 +50,7 @@ impl PlaygroundResponse {
     pub fn ok(id: String) -> PlaygroundResponse {
         Self {
             id,
-            r#type: 0,
+            r#type: PlaygroundResponseType::Ok,
             data: None,
         }
     }
