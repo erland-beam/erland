@@ -2,8 +2,8 @@ use std::net::SocketAddr;
 
 use tokio::fs;
 
+mod handler;
 mod macros;
-mod manager;
 mod messaging;
 mod result;
 mod server;

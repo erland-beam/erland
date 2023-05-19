@@ -1,9 +1,7 @@
+use crate::result;
+
 use std::{collections::HashMap, process::Stdio};
-
-use axum::{http::StatusCode, Json};
 use tokio::fs;
-
-use crate::{messaging::PlaygroundResponse, server::ResponseType};
 
 const RUN_SCRIPT: &'static str = r#"export COMPILED_BINARY=./_build/default/bin/testing;
 rm \$COMPILED_BINARY >/dev/null 2>&1;
@@ -70,25 +68,14 @@ macro_rules! format_script {
     };
 }
 
-pub async fn create(name: String) -> crate::result::Result<ResponseType> {
+pub async fn create(name: String) -> crate::result::Result<()> {
     let path = format!("/tmp/erland/{name}");
-
-    if fs::try_exists(&path)
-        .await
-        .map_err(|_| crate::result::Error::FsError)?
-    {
-        let error = crate::err!("A playground with name \"{}\" already exists", name);
-        return Ok((StatusCode::CONFLICT, error));
-    }
-
     let command = format_command!(&path);
-    let status = crate::shell!(command)?;
 
-    if status.success() {
-        Ok((StatusCode::NO_CONTENT, Json(PlaygroundResponse::Ok)))
+    if crate::shell!(command)?.success() {
+        Ok(())
     } else {
-        let error = crate::err!("Unexpected error while running command");
-        Ok((StatusCode::INTERNAL_SERVER_ERROR, error))
+        Err(result::Error::CmdError)
     }
 }
 
@@ -96,7 +83,7 @@ pub async fn update(
     name: String,
     content: String,
     dependencies: HashMap<String, String>,
-) -> crate::result::Result<ResponseType> {
+) -> crate::result::Result<()> {
     let path = format!("/tmp/erland/{name}");
 
     let rebar_config_path = format!("{path}/rebar.config");
@@ -109,15 +96,19 @@ pub async fn update(
 
     fs::write(rebar_config_path, rebar_config_content)
         .await
-        .map_err(|_| crate::result::Error::FsError)?;
+        .map_err(|_| result::Error::FsError)?;
 
     fs::write(app_src_path, app_src_content)
         .await
-        .map_err(|_| crate::result::Error::FsError)?;
+        .map_err(|_| result::Error::FsError)?;
 
     fs::write(script_path, script_content)
         .await
-        .map_err(|_| crate::result::Error::FsError)?;
+        .map_err(|_| result::Error::FsError)?;
 
-    Ok((StatusCode::NO_CONTENT, Json(PlaygroundResponse::Ok)))
+    Ok(())
+}
+
+pub async fn run(name: String) -> crate::result::Result<()> {
+    todo!()
 }

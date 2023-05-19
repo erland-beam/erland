@@ -1,15 +1,6 @@
+use axum::extract::ws::Message;
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, sync::Arc};
-use tokio::sync::{
-    mpsc::{UnboundedReceiver, UnboundedSender},
-    Mutex,
-};
-
-#[derive(Clone)]
-pub struct ServerState {
-    pub sender: UnboundedSender<PlaygroundMessage>,
-    pub receiver: Arc<Mutex<UnboundedReceiver<PlaygroundMessage>>>,
-}
+use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize)]
 pub enum PlaygroundEnvironment {
@@ -25,7 +16,10 @@ pub struct PlaygroundRequest {
 
 #[derive(Serialize, Deserialize)]
 pub enum PlaygroundMessage {
-    Create(String, PlaygroundEnvironment),
+    Create {
+        name: String,
+        env: PlaygroundEnvironment,
+    },
     Update {
         name: String,
         content: String,
@@ -35,8 +29,22 @@ pub enum PlaygroundMessage {
 }
 
 #[derive(Serialize, Deserialize)]
-pub enum PlaygroundResponse {
-    Ok,
-    Data { id: String, data: String },
-    Error(String),
+pub struct PlaygroundResponse {
+    pub id: String,
+    pub r#type: usize,
+    pub data: Option<String>,
+}
+
+impl PlaygroundResponse {
+    pub fn to_message(&self) -> Message {
+        Message::Text(serde_json::to_string(self).unwrap())
+    }
+
+    pub fn ok(id: String) -> PlaygroundResponse {
+        Self {
+            id,
+            r#type: 0,
+            data: None,
+        }
+    }
 }

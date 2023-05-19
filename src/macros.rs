@@ -11,12 +11,3 @@ macro_rules! shell {
             .map_err(|_| crate::result::Error::CmdError)
     };
 }
-
-#[macro_export]
-macro_rules! err {
-    ($($fmt:expr),*) => {
-        axum::Json(crate::messaging::PlaygroundResponse::Error(format!(
-            $($fmt),*
-        )))
-    };
-}

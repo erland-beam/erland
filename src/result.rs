@@ -1,7 +1,6 @@
-use crate::messaging::PlaygroundResponse;
-
-use axum::{http::StatusCode, Json};
 use thiserror::Error;
+
+use crate::messaging::PlaygroundResponse;
 
 pub type Result<T> = std::result::Result<T, self::Error>;
 
@@ -11,13 +10,18 @@ pub enum Error {
     FsError,
     #[error("Unexcepted error while running a shell command")]
     CmdError,
+    #[error("Playground already exists")]
+    Exist,
+    #[error("Playground doesn't exists")]
+    NotExist,
 }
 
 impl Error {
-    pub fn as_response(self) -> (StatusCode, Json<PlaygroundResponse>) {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(PlaygroundResponse::Error(self.to_string())),
-        )
+    pub fn to_response(self, id: String) -> PlaygroundResponse {
+        PlaygroundResponse {
+            id,
+            r#type: 1,
+            data: Some(self.to_string()),
+        }
     }
 }
