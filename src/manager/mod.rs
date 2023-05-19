@@ -1,25 +1,21 @@
 pub mod erlang;
 
-macro_rules! shell {
-    ($command:expr) => {
-        tokio::process::Command::new("/bin/bash")
-            .arg("-c")
-            .arg($command)
-            .stdout(Stdio::null())
-            .stderr(Stdio::null())
-            .status()
-            .await
-            .map_err(|_| crate::result::Error::CmdError)
-    };
-}
+use crate::messaging::PlaygroundEnvironment;
 
-macro_rules! err {
-    ($($fmt:expr),*) => {
-        axum::Json(crate::messaging::PlaygroundResponse::Error(format!(
-            $($fmt),*
-        )))
-    };
-}
+use tokio::fs;
 
-pub(super) use err;
-pub(super) use shell;
+pub async fn find_environment(name: &str) -> Option<PlaygroundEnvironment> {
+    let path = format!("/tmp/erland/{name}");
+
+    if let Ok(true) = fs::try_exists(&path).await {
+        let rebar_config_path = format!("{path}/rebar.config");
+
+        if let Ok(true) = fs::try_exists(&rebar_config_path).await {
+            Some(PlaygroundEnvironment::Erlang)
+        } else {
+            Some(PlaygroundEnvironment::Elixir)
+        }
+    } else {
+        None
+    }
+}
