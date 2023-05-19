@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum PlaygroundEnvironment {
     Erlang,
     Elixir,
@@ -15,6 +16,7 @@ pub struct PlaygroundRequest {
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum PlaygroundMessage {
     Create {
         name: String,
@@ -29,6 +31,7 @@ pub enum PlaygroundMessage {
 }
 
 #[derive(Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum PlaygroundResponseType {
     Ok,
     Error,
