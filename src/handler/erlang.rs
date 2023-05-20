@@ -50,7 +50,7 @@ pub async fn create(name: String) -> result::Result<()> {
     if crate::shell!(command)?.success() {
         Ok(())
     } else {
-        Err(result::Error::CmdError)
+        Err(result::Error::Command)
     }
 }
 
@@ -71,15 +71,15 @@ pub async fn update(
 
     fs::write(rebar_config_path, rebar_config_content)
         .await
-        .map_err(|_| result::Error::FsError)?;
+        .map_err(|_| result::Error::Filesystem)?;
 
     fs::write(app_src_path, app_src_content)
         .await
-        .map_err(|_| result::Error::FsError)?;
+        .map_err(|_| result::Error::Filesystem)?;
 
     fs::write(script_path, script_content)
         .await
-        .map_err(|_| result::Error::FsError)?;
+        .map_err(|_| result::Error::Filesystem)?;
 
     Ok(())
 }

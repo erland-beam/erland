@@ -1,7 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 
 use crate::{
-    messaging::{PlaygroundEnvironment, PlaygroundRequest, PlaygroundResponse},
+    messaging::{PlaygroundEnvironment, PlaygroundRequest},
     result, send_err, send_ok,
 };
 

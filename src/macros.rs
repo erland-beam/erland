@@ -8,7 +8,7 @@ macro_rules! shell {
             .stderr(Stdio::null())
             .status()
             .await
-            .map_err(|_| crate::result::Error::CmdError)
+            .map_err(|_| $crate::result::Error::Command)
     };
 }
 
@@ -32,7 +32,7 @@ macro_rules! send_ok {
             .sender
             .write()
             .await
-            .send(PlaygroundResponse::ok($pack.id).to_message())
+            .send($crate::messaging::PlaygroundResponse::ok($pack.id).to_message())
             .await
             .ok()
     };

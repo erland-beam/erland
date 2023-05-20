@@ -31,7 +31,7 @@ pub async fn create(name: String) -> result::Result<()> {
     if crate::shell!(command)?.success() {
         Ok(())
     } else {
-        Err(result::Error::CmdError)
+        Err(result::Error::Command)
     }
 }
 
@@ -47,7 +47,7 @@ pub async fn update(
 
     fs::write(script_path, script_content)
         .await
-        .map_err(|_| result::Error::FsError)?;
+        .map_err(|_| result::Error::Filesystem)?;
 
     Ok(())
 }

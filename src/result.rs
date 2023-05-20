@@ -7,9 +7,9 @@ pub type Result<T> = std::result::Result<T, self::Error>;
 #[derive(Error, Debug)]
 pub enum Error {
     #[error("Unexcepted error from filesystem")]
-    FsError,
+    Filesystem,
     #[error("Unexcepted error while running a shell command")]
-    CmdError,
+    Command,
     #[error("Playground already exists")]
     Exist,
     #[error("Playground doesn't exists")]
@@ -17,7 +17,7 @@ pub enum Error {
 }
 
 impl Error {
-    pub fn to_response(self, id: String) -> PlaygroundResponse {
+    pub fn to_response(&self, id: String) -> PlaygroundResponse {
         PlaygroundResponse {
             id,
             r#type: PlaygroundResponseType::Error,

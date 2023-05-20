@@ -14,7 +14,7 @@ use tracing::{debug, info};
 
 pub async fn handle(socket: WebSocketUpgrade) -> impl IntoResponse {
     info!("New connection established");
-    socket.on_upgrade(move |socket| execute_loop(socket))
+    socket.on_upgrade(execute_loop)
 }
 
 async fn execute_loop(socket: WebSocket) {
