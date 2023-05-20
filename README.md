@@ -1,12 +1,20 @@
+<div align="center">
+
+![image](.github/assets/banner.webp)
+
 # Erland
 
 Self-hosted playground server for BEAM languages. Along with containerization, it offers a safe playground for you.
+
+</div>
+
+> ⚠️ You are currently viewing main branch ⚠️
 
 For client implementation, take a look at [erland.ts](https://github.com/erland-beam/erland.ts). We already use it for our UI.
 
 ## Installation
 
-You can also build the project by yourself and use it on your machine. But we **STRONGY** recommend to use it with Docker.
+You can build the project and use it on your machine. But we **STRONGLY** recommend to use it with Docker.
 
 Erland is already published on [Docker Hub](https://hub.docker.com/r/meppu/erland). You can pull the latest stable release like this:
 

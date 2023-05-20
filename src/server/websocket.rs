@@ -24,12 +24,9 @@ async fn execute_loop(socket: WebSocket) {
     while let Some(Ok(Message::Text(message))) = receiver.next().await {
         debug!("Received message ->\n    {message}");
 
-        match serde_json::from_str::<PlaygroundRequest>(&message) {
-            Ok(request) => {
-                let sender = Arc::clone(&sender);
-                tokio::spawn(async { handler::handle(request, sender).await });
-            }
-            Err(_) => todo!(),
+        if let Ok(request) = serde_json::from_str::<PlaygroundRequest>(&message) {
+            let sender = Arc::clone(&sender);
+            tokio::spawn(async { handler::handle(request, sender).await });
         };
     }
 }
