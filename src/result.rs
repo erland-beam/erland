@@ -1,6 +1,8 @@
-use thiserror::Error;
+//! Result types for Erland Server.
 
 use crate::messaging::{PlaygroundResponse, PlaygroundResponseType};
+
+use thiserror::Error;
 
 pub type Result<T> = std::result::Result<T, self::Error>;
 
@@ -17,6 +19,7 @@ pub enum Error {
 }
 
 impl Error {
+    /// Convert [`self::Error`] to [`PlaygroundResponse`].
     pub fn to_response(&self, id: String) -> PlaygroundResponse {
         PlaygroundResponse {
             id,

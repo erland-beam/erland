@@ -1,15 +1,19 @@
+//! Elixir handler for Erland Server.
+
 use super::WebSocketPack;
 use crate::{result, stream};
 
 use std::{collections::HashMap, process::Stdio};
 use tokio::fs;
 
+/// Macro for creating initialize script.
 macro_rules! format_command {
     ($path:expr) => {
         format!(include_str!("../../include/elixir/init.sh"), $path)
     };
 }
 
+/// Macro for creating `testing.exs`.
 macro_rules! format_script {
     ($content:expr, $deps:expr) => {
         format!(
@@ -24,6 +28,7 @@ macro_rules! format_script {
     };
 }
 
+/// Create new elixir playground.
 pub async fn create(name: String) -> result::Result<()> {
     let path = format!("/tmp/erland/{name}");
     let command = format_command!(&path);
@@ -35,6 +40,7 @@ pub async fn create(name: String) -> result::Result<()> {
     }
 }
 
+/// Update elixir playground.
 pub async fn update(
     name: String,
     content: String,
@@ -52,6 +58,7 @@ pub async fn update(
     Ok(())
 }
 
+/// Run elixir playground.
 pub async fn run(pack: &WebSocketPack, name: String) -> result::Result<()> {
     let command = format!("cd /tmp/erland/{name} && TERM=dumb elixir testing.exs");
     stream::run(pack, command).await

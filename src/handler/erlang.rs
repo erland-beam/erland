@@ -1,9 +1,12 @@
+//! Erlang handler for Erland Server.
+
 use super::WebSocketPack;
 use crate::{result, stream};
 
 use std::{collections::HashMap, process::Stdio};
 use tokio::fs;
 
+/// Macro for creating initialize script.
 macro_rules! format_command {
     ($path:expr) => {
         format!(
@@ -14,6 +17,7 @@ macro_rules! format_command {
     };
 }
 
+/// Macro for creating `rebar.config`.
 macro_rules! format_rebar_config {
     ($deps:expr) => {
         format!(
@@ -27,6 +31,7 @@ macro_rules! format_rebar_config {
     };
 }
 
+/// Macro for creating `testing.app.src`.
 macro_rules! format_app_src {
     ($deps:expr) => {
         format!(include_str!("../../include/erlang/testing.app.src"), {
@@ -37,12 +42,14 @@ macro_rules! format_app_src {
     };
 }
 
+/// Macro for creating `testing.erl`.
 macro_rules! format_script {
     ($content:expr) => {
         format!(include_str!("../../include/erlang/testing.erl"), $content)
     };
 }
 
+/// Create new erlang playground.
 pub async fn create(name: String) -> result::Result<()> {
     let path = format!("/tmp/erland/{name}");
     let command = format_command!(&path);
@@ -54,6 +61,7 @@ pub async fn create(name: String) -> result::Result<()> {
     }
 }
 
+/// Update erlang playground.
 pub async fn update(
     name: String,
     content: String,
@@ -61,14 +69,17 @@ pub async fn update(
 ) -> result::Result<()> {
     let path = format!("/tmp/erland/{name}");
 
+    // File paths
     let rebar_config_path = format!("{path}/rebar.config");
     let app_src_path = format!("{path}/src/testing.app.src");
     let script_path = format!("{path}/src/testing.erl");
 
+    // File contents
     let rebar_config_content = format_rebar_config!(dependencies);
     let app_src_content = format_app_src!(dependencies);
     let script_content = format_script!(content);
 
+    // Write contents
     fs::write(rebar_config_path, rebar_config_content)
         .await
         .map_err(|_| result::Error::Filesystem)?;
@@ -84,6 +95,7 @@ pub async fn update(
     Ok(())
 }
 
+/// Run erlang playground.
 pub async fn run(pack: &WebSocketPack, name: String) -> result::Result<()> {
     let command = format!("cd /tmp/erland/{name} && TERM=dumb ./run.sh");
     stream::run(pack, command).await

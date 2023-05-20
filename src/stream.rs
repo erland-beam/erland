@@ -1,3 +1,5 @@
+//! This module stream a command output to WebSocket.
+
 use crate::{
     handler::WebSocketPack,
     messaging::{PlaygroundResponse, PlaygroundResponseType},
@@ -12,6 +14,7 @@ use tokio::{
 };
 
 pub async fn run(pack: &WebSocketPack, command: String) -> result::Result<()> {
+    // Spawn new child
     let mut child = Command::new("/bin/bash")
         .arg("-c")
         .arg(command)
@@ -28,8 +31,10 @@ pub async fn run(pack: &WebSocketPack, command: String) -> result::Result<()> {
     let mut stdout_reader = BufReader::new(stdout).lines();
     let mut stderr_reader = BufReader::new(stderr).lines();
 
+    // Stream child
     loop {
         tokio::select! {
+            // Handle stdout
             result = stdout_reader.next_line() => {
                 match result {
                     Ok(Some(line)) => output_reader(pack, line).await,
@@ -37,6 +42,7 @@ pub async fn run(pack: &WebSocketPack, command: String) -> result::Result<()> {
                     _ => (),
                 }
             }
+            // Handle stderr
             result = stderr_reader.next_line() => {
                 match result {
                     Ok(Some(line)) => output_reader(pack, line).await,
@@ -44,6 +50,7 @@ pub async fn run(pack: &WebSocketPack, command: String) -> result::Result<()> {
                     _ => (),
                 }
             }
+            // Handle exit
             result = child.wait() => {
                 if let Ok(code) = result {
                     status_reader(pack, code).await;
@@ -57,6 +64,7 @@ pub async fn run(pack: &WebSocketPack, command: String) -> result::Result<()> {
     Ok(())
 }
 
+/// Send output to WebSocket.
 async fn output_reader(WebSocketPack { id, sender }: &WebSocketPack, data: String) {
     let packet = PlaygroundResponse {
         id: id.to_owned(),
@@ -67,6 +75,7 @@ async fn output_reader(WebSocketPack { id, sender }: &WebSocketPack, data: Strin
     sender.write().await.send(packet.to_message()).await.ok();
 }
 
+/// Send status to WebSocket.
 async fn status_reader(WebSocketPack { id, sender }: &WebSocketPack, status: ExitStatus) {
     let packet = if status.success() {
         PlaygroundResponse {

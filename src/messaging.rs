@@ -1,3 +1,5 @@
+//! Messaging types for Erland Server.
+
 use axum::extract::ws::Message;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -10,6 +12,7 @@ pub enum PlaygroundEnvironment {
 }
 
 #[derive(Deserialize)]
+/// PlaygroundMessage with ID.
 pub struct PlaygroundRequest {
     pub id: String,
     pub message: PlaygroundMessage,

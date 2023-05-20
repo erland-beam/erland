@@ -29,7 +29,6 @@ jobs:
           key: erland-${{ hashFiles('**/Cargo.lock') }}-deps
 
       - name: Run cargo clippy
-        continue-on-error: true
         run: cargo clippy --no-deps -- -Dwarnings
 
       - name: Run cargo fmt
