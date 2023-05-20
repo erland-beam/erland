@@ -31,6 +31,7 @@ pub enum PlaygroundMessage {
         dependencies: HashMap<String, String>,
     },
     Run(String),
+    Remove(String),
 }
 
 #[derive(Serialize)]

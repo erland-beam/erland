@@ -3,7 +3,7 @@
 use std::{collections::HashMap, sync::Arc};
 
 use crate::{
-    messaging::{PlaygroundEnvironment, PlaygroundRequest},
+    messaging::{PlaygroundEnvironment, PlaygroundMessage, PlaygroundRequest},
     result, send_err, send_ok,
 };
 
@@ -27,15 +27,14 @@ pub async fn handle(PlaygroundRequest { id, message }: PlaygroundRequest, sender
     let pack = WebSocketPack { id, sender };
 
     match message {
-        crate::messaging::PlaygroundMessage::Create { name, env } => {
-            handle_create(pack, name, env).await
-        }
-        crate::messaging::PlaygroundMessage::Update {
+        PlaygroundMessage::Create { name, env } => handle_create(pack, name, env).await,
+        PlaygroundMessage::Update {
             name,
             content,
             dependencies,
         } => handle_update(pack, name, content, dependencies).await,
-        crate::messaging::PlaygroundMessage::Run(name) => handle_run(pack, name).await,
+        PlaygroundMessage::Run(name) => handle_run(pack, name).await,
+        PlaygroundMessage::Remove(name) => handle_remove(pack, name).await,
     }
 }
 
@@ -100,6 +99,26 @@ async fn handle_run(pack: WebSocketPack, name: String) {
     } else {
         // Send not exist error
         send_err!(pack, result::Error::NotExist);
+    }
+}
+
+/// Handle `remove` request.
+async fn handle_remove(pack: WebSocketPack, name: String) {
+    // Check if playground exists
+    if find_environment(&name).await.is_none() {
+        // Send not exist error
+        send_err!(pack, result::Error::NotExist);
+    } else {
+        // Remove directory
+        let path = format!("/tmp/erland/{name}");
+        let result = fs::remove_dir_all(path)
+            .await
+            .map_err(|_| result::Error::Filesystem);
+
+        match result {
+            Ok(()) => send_ok!(pack),
+            Err(error) => send_err!(pack, error),
+        };
     }
 }
 
