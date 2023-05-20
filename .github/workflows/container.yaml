@@ -37,3 +37,10 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Set description
+        uses: peter-evans/dockerhub-description@v3
+        with:
+          username: meppu
+          password: ${{ secrets.DOCKER_PAT }}
+          repository: meppu/erland
