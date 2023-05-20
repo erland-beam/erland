@@ -4,19 +4,12 @@ use crate::{result, stream};
 use std::{collections::HashMap, process::Stdio};
 use tokio::fs;
 
-const RUN_SCRIPT: &'static str = r#"export COMPILED_BINARY=./_build/default/bin/testing;
-rm \$COMPILED_BINARY >/dev/null 2>&1;
-rebar3 do compile, escriptize || { exit 1; };
-\$COMPILED_BINARY;"#;
-
 macro_rules! format_command {
     ($path:expr) => {
         format!(
-            r#"TERM=dumb rebar3 new escript testing && 
-echo "{}" > ./testing/run.sh && 
-chmod +x ./testing/run.sh && 
-mv ./testing {}"#,
-            RUN_SCRIPT, $path
+            include_str!("../../include/erlang/init.sh"),
+            include_str!("../../include/erlang/run.sh"),
+            $path
         )
     };
 }
@@ -24,13 +17,7 @@ mv ./testing {}"#,
 macro_rules! format_rebar_config {
     ($deps:expr) => {
         format!(
-            r#"{{erl_opts, [no_debug_info]}}.
-{{escript_incl_apps, [testing]}}.
-{{escript_main_app, testing}}.
-{{escript_name, testing}}.
-{{profiles, [{{test, [{{erl_opts, [debug_info]}}]}}]}}.
-{{deps, [{}]}}.
-"#,
+            include_str!("../../include/erlang/rebar.config"),
             $deps
                 .iter()
                 .map(|(key, value)| format!("{{{key}, \"{value}\"}}"))
@@ -42,30 +29,17 @@ macro_rules! format_rebar_config {
 
 macro_rules! format_app_src {
     ($deps:expr) => {
-        format!(
-            r#"{{application, testing, [
-    {{description, "Erland playground template for rebar3"}},
-    {{vsn, "0.0.0"}},
-    {{registered, []}},
-    {{applications, [{}]}},
-    {{env, []}},
-    {{modules, []}},
-    {{licenses, []}},
-    {{links, []}}
-]}}.
-"#,
-            {
-                let mut temp = $deps.keys().cloned().collect::<Vec<_>>();
-                temp.extend_from_slice(&["kernel".to_string(), "stdlib".to_string()]);
-                temp.join(", ")
-            },
-        )
+        format!(include_str!("../../include/erlang/testing.app.src"), {
+            let mut temp = $deps.keys().cloned().collect::<Vec<_>>();
+            temp.extend_from_slice(&["kernel".to_string(), "stdlib".to_string()]);
+            temp.join(", ")
+        })
     };
 }
 
 macro_rules! format_script {
     ($content:expr) => {
-        format!("-module(testing).\n-export([main/1]).\n\n{}", $content)
+        format!(include_str!("../../include/erlang/testing.erl"), $content)
     };
 }
 

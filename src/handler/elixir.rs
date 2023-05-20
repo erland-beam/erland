@@ -6,19 +6,14 @@ use tokio::fs;
 
 macro_rules! format_command {
     ($path:expr) => {
-        format!(
-            r#"mkdir testing && 
-echo "IO.puts :ok" > ./testing/testing.exs && 
-mv ./testing {}"#,
-            $path
-        )
+        format!(include_str!("../../include/elixir/init.sh"), $path)
     };
 }
 
 macro_rules! format_script {
     ($content:expr, $deps:expr) => {
         format!(
-            "Mix.install([{}])\n\n{}",
+            include_str!("../../include/elixir/testing.exs"),
             $deps
                 .iter()
                 .map(|(key, value)| format!("{{:{key}, \"~> {value}\"}}"))

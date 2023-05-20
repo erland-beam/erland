@@ -1,0 +1,10 @@
+{{application, testing, [
+    {{description, "Erland playground template for rebar3"}},
+    {{vsn, "0.0.0"}},
+    {{registered, []}},
+    {{applications, [{}]}},
+    {{env, []}},
+    {{modules, []}},
+    {{licenses, []}},
+    {{links, []}}
+]}}.

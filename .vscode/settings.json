@@ -1,0 +1,6 @@
+{
+  "files.exclude": {
+    "**/include": true
+  },
+  "files.eol": "\n"
+}

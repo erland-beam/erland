@@ -1,0 +1,4 @@
+Mix.install([{}])
+
+# Starts here
+{}
