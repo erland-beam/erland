@@ -16,6 +16,8 @@ pub enum Error {
     Exist,
     #[error("Playground doesn't exists")]
     NotExist,
+    #[error("Playground name can only contain ascii alphanumeric characters and dot (.)")]
+    Format,
 }
 
 impl Error {

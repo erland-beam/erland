@@ -40,6 +40,13 @@ pub async fn handle(PlaygroundRequest { id, message }: PlaygroundRequest, sender
 
 /// Handle `create` request.
 async fn handle_create(pack: WebSocketPack, name: String, env: PlaygroundEnvironment) {
+    // Check name format
+    if !check_playground_name(&name) {
+        // Send format error
+        send_err!(pack, result::Error::Format);
+        return;
+    }
+
     // Check if already exists
     if find_environment(&name).await.is_none() {
         // Handle for environment
@@ -137,4 +144,19 @@ async fn find_environment(name: &str) -> Option<PlaygroundEnvironment> {
     } else {
         None
     }
+}
+
+/// Check playground name format
+fn check_playground_name(name: &str) -> bool {
+    if name.len() > 16 {
+        return false;
+    }
+
+    for character in name.chars() {
+        if !(character.is_ascii_alphanumeric() || character == '.') {
+            return false;
+        }
+    }
+
+    true
 }
