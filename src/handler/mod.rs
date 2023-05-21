@@ -148,7 +148,8 @@ async fn find_environment(name: &str) -> Option<PlaygroundEnvironment> {
 
 /// Check playground name format
 fn check_playground_name(name: &str) -> bool {
-    if name.len() > 16 {
+    let length = name.len();
+    if length < 3 && length > 16 {
         return false;
     }
 
