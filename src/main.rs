@@ -17,7 +17,7 @@ pub(crate) struct Args {
     pub port: u16,
 
     /// IPv4 address to listen.
-    #[arg(short, long, default_value_t = Ipv4Addr::new(127, 0, 0, 1), value_parser = value_parser!(Ipv4Addr))]
+    #[arg(short, long, default_value_t = Ipv4Addr::new(0, 0, 0, 0), value_parser = value_parser!(Ipv4Addr))]
     pub bind: Ipv4Addr,
 
     /// Clean erland directory before startup.
