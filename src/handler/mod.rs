@@ -149,7 +149,7 @@ async fn find_environment(name: &str) -> Option<PlaygroundEnvironment> {
 /// Check playground name format
 fn check_playground_name(name: &str) -> bool {
     let length = name.len();
-    if length < 3 || length > 16 {
+    if !(3..=16).contains(&length) {
         return false;
     }
 
