@@ -13,5 +13,4 @@ RUN mix local.rebar --force
 
 COPY --from=builder /app/target/release/erland /release/erland
 
-EXPOSE 8080
-CMD [ "/release/erland" ]
+ENTRYPOINT [ "/release/erland" ]

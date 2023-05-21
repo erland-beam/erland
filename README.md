@@ -14,7 +14,7 @@ For client implementation, take a look at [erland.ts](https://github.com/erland-
 
 ## Installation
 
-> **STRONGLY** recommend to use it with Docker.
+> **STRONGLY** recommended to use it with Docker.
 
 ### Docker
 
@@ -27,15 +27,21 @@ docker pull meppu/erland
 And use it:
 
 ```bash
-docker run -p 8080:8080 meppu/erland
+docker run -p 8080:8080 meppu/erland -t
 ```
 
 ### Cargo
 
-Erland is already published on [crates.io](https://crates.io/crates/erland).
+Erland is already published on [crates.io](https://crates.io/crates/erland). You must have install
 
 ```bash
 cargo install erland
+```
+
+And use it:
+
+```bash
+erland --help
 ```
 
 ## Contributing
