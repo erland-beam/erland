@@ -1,9 +1,14 @@
 [package]
 name = "erland"
-version = "0.1.0"
+version = "1.0.0-alpha"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+license = "AGPL-3.0"
+description = "Self-hosted playground server for BEAM languages"
+homepage = "https://github.com/erland-beam/erland"
+repository = "https://github.com/erland-beam/erland"
+keywords = ["web-server", "websocket", "erlang", "elixir", "playground"]
+authors = ["meppu <crates@meppu.boo>"]
+include = ["src/**/*", "Cargo.toml", "README.md", "LICENSE.md"]
 
 [dependencies]
 axum = { version = "0.6", features = ["ws"] }

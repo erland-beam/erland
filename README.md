@@ -14,23 +14,29 @@ For client implementation, take a look at [erland.ts](https://github.com/erland-
 
 ## Installation
 
-You can build the project and use it on your machine. But we **STRONGLY** recommend to use it with Docker.
+> **STRONGLY** recommend to use it with Docker.
+
+### Docker
 
 Erland is already published on [Docker Hub](https://hub.docker.com/r/meppu/erland). You can pull the latest stable release like this:
 
 ```bash
-# docker pull meppu/erland:<tag> (tag can be "latest" (stable latest [default]), "main" (unstable latest), or a version ("v1.0.0" etc...))
 docker pull meppu/erland
 ```
 
 And use it:
 
 ```bash
-# docker run -p <port to expose>:8080 meppu/erland:<tag>
-docker run -p 1337:8080 meppu/erland
+docker run -p 8080:8080 meppu/erland
 ```
 
-Now you are able to connect WebSocket server.
+### Cargo
+
+Erland is already published on [crates.io](https://crates.io/crates/erland).
+
+```bash
+cargo install erland
+```
 
 ## Contributing
 
