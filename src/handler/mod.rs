@@ -154,7 +154,7 @@ fn check_playground_name(name: &str) -> bool {
     }
 
     for character in name.chars() {
-        if !(character.is_ascii_alphanumeric() || character == '.') {
+        if !(character.is_ascii_alphanumeric() || character == '_') {
             return false;
         }
     }
