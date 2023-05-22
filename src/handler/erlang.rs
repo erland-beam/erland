@@ -1,7 +1,7 @@
 //! Erlang handler for Erland Server.
 
 use super::WebSocketPack;
-use crate::{result, stream};
+use crate::{playground_path, result, stream};
 
 use std::{collections::HashMap, process::Stdio};
 use tokio::fs;
@@ -51,7 +51,7 @@ macro_rules! format_script {
 
 /// Create new erlang playground.
 pub async fn create(name: String) -> result::Result<()> {
-    let path = format!("/tmp/erland/{name}");
+    let path = playground_path!(name);
     let command = format_command!(&path);
 
     if crate::shell!(command)?.success() {
@@ -67,7 +67,7 @@ pub async fn update(
     content: String,
     dependencies: HashMap<String, String>,
 ) -> result::Result<()> {
-    let path = format!("/tmp/erland/{name}");
+    let path = playground_path!(name);
 
     // File paths
     let rebar_config_path = format!("{path}/rebar.config");
@@ -97,6 +97,8 @@ pub async fn update(
 
 /// Run erlang playground.
 pub async fn run(pack: &WebSocketPack, name: String) -> result::Result<()> {
-    let command = format!("cd /tmp/erland/{name} && TERM=dumb ./run.sh");
+    let path = playground_path!(name);
+    let command = format!("cd {path} && TERM=dumb ./run.sh");
+
     stream::run(pack, command).await
 }

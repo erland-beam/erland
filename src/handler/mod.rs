@@ -4,7 +4,7 @@ use std::{collections::HashMap, sync::Arc};
 
 use crate::{
     messaging::{PlaygroundEnvironment, PlaygroundMessage, PlaygroundRequest},
-    result, send_err, send_ok,
+    playground_path, result, send_err, send_ok,
 };
 
 use axum::extract::ws::{Message, WebSocket};
@@ -117,7 +117,7 @@ async fn handle_remove(pack: WebSocketPack, name: String) {
         send_err!(pack, result::Error::NotExist);
     } else {
         // Remove directory
-        let path = format!("/tmp/erland/{name}");
+        let path = playground_path!(name);
         let result = fs::remove_dir_all(path)
             .await
             .map_err(|_| result::Error::Filesystem);
@@ -131,7 +131,7 @@ async fn handle_remove(pack: WebSocketPack, name: String) {
 
 /// Get playground environment from name.
 async fn find_environment(name: &str) -> Option<PlaygroundEnvironment> {
-    let path = format!("/tmp/erland/{name}");
+    let path = playground_path!(name);
 
     if let Ok(true) = fs::try_exists(&path).await {
         let rebar_config_path = format!("{path}/rebar.config");

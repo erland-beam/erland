@@ -1,7 +1,7 @@
 //! Elixir handler for Erland Server.
 
 use super::WebSocketPack;
-use crate::{result, stream};
+use crate::{playground_path, result, stream};
 
 use std::{collections::HashMap, process::Stdio};
 use tokio::fs;
@@ -30,7 +30,7 @@ macro_rules! format_script {
 
 /// Create new elixir playground.
 pub async fn create(name: String) -> result::Result<()> {
-    let path = format!("/tmp/erland/{name}");
+    let path = playground_path!(name);
     let command = format_command!(&path);
 
     if crate::shell!(command)?.success() {
@@ -46,7 +46,7 @@ pub async fn update(
     content: String,
     dependencies: HashMap<String, String>,
 ) -> result::Result<()> {
-    let path = format!("/tmp/erland/{name}");
+    let path = playground_path!(name);
 
     let script_path = format!("{path}/testing.exs");
     let script_content = format_script!(content, dependencies);
@@ -60,6 +60,8 @@ pub async fn update(
 
 /// Run elixir playground.
 pub async fn run(pack: &WebSocketPack, name: String) -> result::Result<()> {
-    let command = format!("cd /tmp/erland/{name} && TERM=dumb elixir testing.exs");
+    let path = playground_path!(name);
+    let command = format!("cd {path} && TERM=dumb elixir testing.exs");
+
     stream::run(pack, command).await
 }

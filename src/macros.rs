@@ -42,3 +42,10 @@ macro_rules! send_ok {
             .ok()
     };
 }
+
+#[macro_export]
+macro_rules! playground_path {
+    ($path:expr) => {
+        format!("/tmp/erland/{}", $path)
+    };
+}
