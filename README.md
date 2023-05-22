@@ -27,7 +27,7 @@ docker pull meppu/erland
 And use it:
 
 ```bash
-docker run -p 8080:8080 meppu/erland -t
+docker run -p 8080:8080 meppu/erland
 ```
 
 ### Cargo
