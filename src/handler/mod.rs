@@ -9,12 +9,12 @@ use crate::{
 
 use axum::extract::ws::{Message, WebSocket};
 use futures::{stream::SplitSink, SinkExt};
-use tokio::{fs, sync::RwLock};
+use tokio::{fs, sync::Mutex};
 
 mod elixir;
 mod erlang;
 
-type WebSocketSender = Arc<RwLock<SplitSink<WebSocket, Message>>>;
+type WebSocketSender = Arc<Mutex<SplitSink<WebSocket, Message>>>;
 
 /// WebSocket Sender with Request ID for handling multiple concurrent requests.
 pub struct WebSocketPack {

@@ -3,7 +3,7 @@
 use crate::{
     handler::WebSocketPack,
     messaging::{PlaygroundResponse, PlaygroundResponseType},
-    result,
+    result, send_packet,
 };
 
 use futures::SinkExt;
@@ -72,7 +72,7 @@ async fn output_reader(WebSocketPack { id, sender }: &WebSocketPack, data: Strin
         data: Some(data),
     };
 
-    sender.write().await.send(packet.to_message()).await.ok();
+    send_packet!(sender, packet);
 }
 
 /// Send status to WebSocket.
@@ -91,5 +91,5 @@ async fn status_reader(WebSocketPack { id, sender }: &WebSocketPack, status: Exi
         }
     };
 
-    sender.write().await.send(packet.to_message()).await.ok();
+    send_packet!(sender, packet);
 }

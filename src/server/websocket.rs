@@ -1,6 +1,6 @@
 //! WebSocket for Erland Server.
 
-use crate::{handler, messaging::PlaygroundRequest};
+use crate::{handler, messaging::PlaygroundRequest, send_raw_packet};
 
 use axum::{
     extract::{
@@ -11,7 +11,7 @@ use axum::{
 };
 use futures::{stream::StreamExt, SinkExt};
 use std::sync::Arc;
-use tokio::sync::RwLock;
+use tokio::sync::Mutex;
 use tracing::{debug, info};
 
 /// WebSocket connection handler.
@@ -23,7 +23,7 @@ pub async fn handle(socket: WebSocketUpgrade) -> impl IntoResponse {
 /// Waits for messages and calls [`handler::handle`].
 async fn execute_loop(socket: WebSocket) {
     let (sender, mut receiver) = socket.split();
-    let sender = Arc::new(RwLock::new(sender));
+    let sender = Arc::new(Mutex::new(sender));
 
     // Get messages
     while let Some(Ok(message)) = receiver.next().await {
@@ -40,7 +40,7 @@ async fn execute_loop(socket: WebSocket) {
             }
             Message::Ping(data) => {
                 // Send pong with same data
-                sender.write().await.send(Message::Pong(data)).await.ok();
+                send_raw_packet!(sender, Message::Pong(data));
             }
             _ => (),
         }
