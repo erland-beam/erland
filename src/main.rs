@@ -20,27 +20,29 @@ pub(crate) struct Args {
     #[arg(short, long, default_value_t = Ipv4Addr::new(0, 0, 0, 0), value_parser = value_parser!(Ipv4Addr))]
     pub bind: Ipv4Addr,
 
-    /// Clean erland directory before startup.
+    /// Reset erland directory before startup.
     #[arg(short, long)]
-    pub clean: bool,
+    pub reset: bool,
 
-    /// Print tracing outputs
+    /// Keeps output clean.
     #[arg(short, long)]
-    pub tracing: bool,
+    pub silent: bool,
 }
 
 #[tokio::main]
 async fn main() {
     // Get args
     let args = Args::parse();
+
+    // Get socket address
     let addr = SocketAddr::from((args.bind.octets(), args.port));
 
-    if args.tracing {
+    if !args.silent {
         // Initialize tracing subscriber
         tracing_subscriber::fmt::try_init().ok();
     }
 
-    if args.clean {
+    if args.reset {
         // Try removing /tmp/erland
         fs::remove_dir_all("/tmp/erland").await.ok();
     }
