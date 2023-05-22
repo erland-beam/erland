@@ -9,7 +9,7 @@ use axum::{
     },
     response::IntoResponse,
 };
-use futures::stream::StreamExt;
+use futures::{stream::StreamExt, SinkExt};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use tracing::{debug, info};
@@ -26,14 +26,23 @@ async fn execute_loop(socket: WebSocket) {
     let sender = Arc::new(RwLock::new(sender));
 
     // Get messages
-    while let Some(Ok(Message::Text(message))) = receiver.next().await {
-        debug!("Received message ->\n    {message}");
+    while let Some(Ok(message)) = receiver.next().await {
+        debug!("Received message:\n{message:?}");
 
-        // Ignore if not valid struct
-        if let Ok(request) = serde_json::from_str::<PlaygroundRequest>(&message) {
-            // Spawn new task for request
-            let sender = Arc::clone(&sender);
-            tokio::spawn(async { handler::handle(request, sender).await });
-        };
+        match message {
+            Message::Text(content) => {
+                // Ignore if not valid struct
+                if let Ok(request) = serde_json::from_str::<PlaygroundRequest>(&content) {
+                    // Spawn new task for request
+                    let sender = Arc::clone(&sender);
+                    tokio::spawn(async { handler::handle(request, sender).await });
+                };
+            }
+            Message::Ping(data) => {
+                // Send pong with same data
+                sender.write().await.send(Message::Pong(data)).await.ok();
+            }
+            _ => (),
+        }
     }
 }
