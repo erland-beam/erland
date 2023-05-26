@@ -14,20 +14,20 @@ For client implementation, take a look at [erland.ts](https://github.com/erland-
 
 ## Installation
 
-> **STRONGLY** recommended to use it with Docker.
+> **STRONGLY** recommended to use it with Docker or any other containerisation system.
 
 ### Docker
 
-Erland is already published on [Docker Hub](https://hub.docker.com/r/meppu/erland). You can pull the latest stable release like this:
+Erland is already published on [GitHub Packages](https://github.com/erland-beam/erland/pkgs/container/erland). You can pull the latest stable release like this:
 
 ```bash
-docker pull meppu/erland
+docker pull ghcr.io/erland-beam/erland:main
 ```
 
 And use it:
 
 ```bash
-docker run -p 8080:8080 meppu/erland
+docker run -p 8080:8080 ghcr.io/erland-beam/erland:main
 ```
 
 ### Cargo
