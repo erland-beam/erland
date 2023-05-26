@@ -7,25 +7,34 @@ on:
     types: [created]
   workflow_dispatch:
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
-  publish:
+  create-publish:
     runs-on: ubuntu-latest
-    name: Create container image
+    name: Create and publish container image
+
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Login to Docker Hub
+      - name: Log in to the Container registry
         uses: docker/login-action@v2
         with:
-          username: meppu
-          password: ${{ secrets.DOCKER_PAT }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: meppu/erland
+          images: ${{ env.REGISTRY }}/${{ github.repository }}
           tags: |
             type=ref,event=branch
             type=ref,event=tag
@@ -34,14 +43,6 @@ jobs:
       - name: Publish
         uses: docker/build-push-action@v4
         with:
-          context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
-      - name: Set description
-        uses: peter-evans/dockerhub-description@v3
-        with:
-          username: meppu
-          password: ${{ secrets.DOCKER_PAT }}
-          repository: meppu/erland
