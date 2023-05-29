@@ -1,0 +1,11 @@
+name = "testing"
+version = "0.0.0"
+description = "Erland playground template for Gleam"
+
+[dependencies]
+gleam_stdlib = "~> 0.29"
+# Packages
+{}
+
+[dev-dependencies]
+gleeunit = "~> 0.10"
