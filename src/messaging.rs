@@ -9,6 +9,7 @@ use std::collections::HashMap;
 pub enum PlaygroundEnvironment {
     Erlang,
     Elixir,
+    Gleam,
 }
 
 #[derive(Deserialize)]

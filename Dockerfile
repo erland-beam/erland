@@ -6,7 +6,7 @@ COPY . .
 
 RUN cargo build --release
 
-FROM docker.io/elixir:1.14
+FROM ghcr.io/gleam-lang/gleam:v0.29.0-elixir
 
 RUN mix local.hex --force
 RUN mix local.rebar --force

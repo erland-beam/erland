@@ -20,10 +20,6 @@ pub(crate) struct Args {
     #[arg(short, long, default_value_t = Ipv4Addr::new(0, 0, 0, 0), value_parser = value_parser!(Ipv4Addr))]
     pub bind: Ipv4Addr,
 
-    /// Reset erland directory before startup.
-    #[arg(short, long)]
-    pub reset: bool,
-
     /// Keeps output clean.
     #[arg(short, long)]
     pub silent: bool,
@@ -42,12 +38,8 @@ async fn main() {
         tracing_subscriber::fmt::try_init().ok();
     }
 
-    if args.reset {
-        // Try removing /tmp/erland
-        fs::remove_dir_all("/tmp/erland").await.ok();
-    }
-
-    // Try creating /tmp/erland
+    // Try reset /tmp/erland
+    fs::remove_dir_all("/tmp/erland").await.ok();
     fs::create_dir("/tmp/erland").await.ok();
 
     // Start server

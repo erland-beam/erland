@@ -13,6 +13,7 @@ use tokio::{fs, sync::Mutex};
 
 mod elixir;
 mod erlang;
+mod gleam;
 
 type WebSocketSender = Arc<Mutex<SplitSink<WebSocket, Message>>>;
 
@@ -53,6 +54,7 @@ async fn handle_create(pack: WebSocketPack, name: String, env: PlaygroundEnviron
         let result = match env {
             PlaygroundEnvironment::Erlang => erlang::create(name).await,
             PlaygroundEnvironment::Elixir => elixir::create(name).await,
+            PlaygroundEnvironment::Gleam => gleam::create(name).await,
         };
 
         match result {
@@ -78,6 +80,7 @@ async fn handle_update(
         let result = match env {
             PlaygroundEnvironment::Erlang => erlang::update(name, content, dependencies).await,
             PlaygroundEnvironment::Elixir => elixir::update(name, content, dependencies).await,
+            PlaygroundEnvironment::Gleam => gleam::update(name, content, dependencies).await,
         };
 
         match result {
@@ -98,6 +101,7 @@ async fn handle_run(pack: WebSocketPack, name: String) {
         let result = match env {
             PlaygroundEnvironment::Erlang => erlang::run(&pack, name).await,
             PlaygroundEnvironment::Elixir => elixir::run(&pack, name).await,
+            PlaygroundEnvironment::Gleam => gleam::run(&pack, name).await,
         };
 
         if let Err(error) = result {
@@ -133,17 +137,19 @@ async fn handle_remove(pack: WebSocketPack, name: String) {
 async fn find_environment(name: &str) -> Option<PlaygroundEnvironment> {
     let path = playground_path!(name);
 
-    if let Ok(true) = fs::try_exists(&path).await {
-        let rebar_config_path = format!("{path}/rebar.config");
+    let Ok(true) = fs::try_exists(&path).await else {
+        return None;
+    };
 
-        if let Ok(true) = fs::try_exists(&rebar_config_path).await {
-            Some(PlaygroundEnvironment::Erlang)
-        } else {
-            Some(PlaygroundEnvironment::Elixir)
-        }
-    } else {
-        None
-    }
+    if let Ok(true) = fs::try_exists(format!("{path}/rebar.config")).await {
+        return Some(PlaygroundEnvironment::Erlang);
+    };
+
+    if let Ok(true) = fs::try_exists(format!("{path}/gleam.toml")).await {
+        return Some(PlaygroundEnvironment::Gleam);
+    };
+
+    Some(PlaygroundEnvironment::Elixir)
 }
 
 /// Check playground name format

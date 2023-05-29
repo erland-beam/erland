@@ -12,6 +12,10 @@ Self-hosted playground server for BEAM languages. Along with containerization, i
 
 For client implementation, take a look at [erland.ts](https://github.com/erland-beam/erland.ts). We already use it for our UI.
 
+## Languages
+
+We currently support Erlang (26), Elixir (1.14) and Gleam (0.29).
+
 ## Installation
 
 > **STRONGLY** recommended to use it with Docker or any other containerisation system.
