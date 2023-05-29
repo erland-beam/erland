@@ -1,4 +1,4 @@
-//! Erlang handler for Erland Server.
+//! Gleam handler for Erland Server.
 
 use super::WebSocketPack;
 use crate::{playground_path, result, stream};
