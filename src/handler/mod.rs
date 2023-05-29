@@ -53,6 +53,7 @@ async fn handle_create(pack: WebSocketPack, name: String, env: PlaygroundEnviron
         let result = match env {
             PlaygroundEnvironment::Erlang => erlang::create(name).await,
             PlaygroundEnvironment::Elixir => elixir::create(name).await,
+            PlaygroundEnvironment::Gleam => todo!(),
         };
 
         match result {
@@ -78,6 +79,7 @@ async fn handle_update(
         let result = match env {
             PlaygroundEnvironment::Erlang => erlang::update(name, content, dependencies).await,
             PlaygroundEnvironment::Elixir => elixir::update(name, content, dependencies).await,
+            PlaygroundEnvironment::Gleam => todo!(),
         };
 
         match result {
@@ -98,6 +100,7 @@ async fn handle_run(pack: WebSocketPack, name: String) {
         let result = match env {
             PlaygroundEnvironment::Erlang => erlang::run(&pack, name).await,
             PlaygroundEnvironment::Elixir => elixir::run(&pack, name).await,
+            PlaygroundEnvironment::Gleam => todo!(),
         };
 
         if let Err(error) = result {
