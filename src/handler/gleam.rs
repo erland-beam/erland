@@ -52,7 +52,7 @@ pub async fn update(
     let script_path = format!("{path}/src/testing.gleam");
 
     // File contents
-    let gleam_toml_content = format_gleam_toml!(dependencies.unwrap_or(HashMap::new()));
+    let gleam_toml_content = format_gleam_toml!(dependencies.unwrap_or_default());
 
     // Write contents
     fs::write(gleam_toml_path, gleam_toml_content)

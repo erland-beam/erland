@@ -49,7 +49,7 @@ pub async fn update(
     let path = playground_path!(name);
 
     let script_path = format!("{path}/testing.exs");
-    let script_content = format_script!(content, dependencies.unwrap_or(HashMap::new()));
+    let script_content = format_script!(content, dependencies.unwrap_or_default());
 
     fs::write(script_path, script_content)
         .await
