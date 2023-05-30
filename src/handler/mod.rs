@@ -72,7 +72,7 @@ async fn handle_update(
     pack: WebSocketPack,
     name: String,
     content: String,
-    dependencies: HashMap<String, String>,
+    dependencies: Option<HashMap<String, String>>,
 ) {
     // Check if playground exists
     if let Some(env) = find_environment(&name).await {

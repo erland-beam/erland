@@ -44,12 +44,12 @@ pub async fn create(name: String) -> result::Result<()> {
 pub async fn update(
     name: String,
     content: String,
-    dependencies: HashMap<String, String>,
+    dependencies: Option<HashMap<String, String>>,
 ) -> result::Result<()> {
     let path = playground_path!(name);
 
     let script_path = format!("{path}/testing.exs");
-    let script_content = format_script!(content, dependencies);
+    let script_content = format_script!(content, dependencies.unwrap_or(HashMap::new()));
 
     fs::write(script_path, script_content)
         .await

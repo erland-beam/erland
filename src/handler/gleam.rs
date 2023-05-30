@@ -43,7 +43,7 @@ pub async fn create(name: String) -> result::Result<()> {
 pub async fn update(
     name: String,
     content: String,
-    dependencies: HashMap<String, String>,
+    dependencies: Option<HashMap<String, String>>,
 ) -> result::Result<()> {
     let path = playground_path!(name);
 
@@ -52,7 +52,7 @@ pub async fn update(
     let script_path = format!("{path}/src/testing.gleam");
 
     // File contents
-    let gleam_toml_content = format_gleam_toml!(dependencies);
+    let gleam_toml_content = format_gleam_toml!(dependencies.unwrap_or(HashMap::new()));
 
     // Write contents
     fs::write(gleam_toml_path, gleam_toml_content)

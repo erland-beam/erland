@@ -29,7 +29,7 @@ pub enum PlaygroundMessage {
     Update {
         name: String,
         content: String,
-        dependencies: HashMap<String, String>,
+        dependencies: Option<HashMap<String, String>>,
     },
     Run(String),
     Remove(String),

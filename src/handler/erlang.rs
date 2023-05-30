@@ -65,7 +65,7 @@ pub async fn create(name: String) -> result::Result<()> {
 pub async fn update(
     name: String,
     content: String,
-    dependencies: HashMap<String, String>,
+    dependencies: Option<HashMap<String, String>>,
 ) -> result::Result<()> {
     let path = playground_path!(name);
 
@@ -75,8 +75,9 @@ pub async fn update(
     let script_path = format!("{path}/src/testing.erl");
 
     // File contents
-    let rebar_config_content = format_rebar_config!(dependencies);
-    let app_src_content = format_app_src!(dependencies);
+    let _dependencies = dependencies.unwrap_or(HashMap::new());
+    let rebar_config_content = format_rebar_config!(_dependencies);
+    let app_src_content = format_app_src!(_dependencies);
     let script_content = format_script!(content);
 
     // Write contents
