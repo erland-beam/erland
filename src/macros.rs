@@ -44,7 +44,7 @@ macro_rules! send_ok {
 }
 
 #[macro_export]
-/// Send apacket to WebSocket
+/// Send packet to WebSocket
 macro_rules! send_packet {
     ($sender:expr, $packet:expr) => {
         $sender.lock().await.send($packet.to_message()).await.ok()

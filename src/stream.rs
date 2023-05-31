@@ -23,7 +23,7 @@ pub async fn run(pack: &WebSocketPack, command: String) -> result::Result<()> {
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
-        .map_err(|_| crate::result::Error::Command)?;
+        .map_err(|_| result::Error::Command)?;
 
     // Should panic if fails
     let stdout = child.stdout.take().unwrap();
@@ -59,7 +59,7 @@ pub async fn run(pack: &WebSocketPack, command: String) -> result::Result<()> {
 
                 break
             }
-        };
+        }
     }
 
     Ok(())

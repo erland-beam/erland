@@ -8,9 +8,9 @@ pub type Result<T> = std::result::Result<T, self::Error>;
 
 #[derive(Error, Debug)]
 pub enum Error {
-    #[error("Unexcepted error from filesystem")]
+    #[error("Unexpected error from filesystem")]
     Filesystem,
-    #[error("Unexcepted error while running a shell command")]
+    #[error("Unexpected error while running a shell command")]
     Command,
     #[error("Playground already exists")]
     Exist,

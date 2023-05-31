@@ -10,11 +10,12 @@ Self-hosted playground server for BEAM languages. Along with containerization, i
 
 > ⚠️ You are currently viewing main branch ⚠️
 
-For client implementation, take a look at [erland.ts](https://github.com/erland-beam/erland.ts). We already use it for our UI.
+For client implementation, take a look at [erland.ts](https://github.com/erland-beam/erland.ts). We already use it for
+our UI.
 
 ## Languages
 
-We currently support Erlang (26), Elixir (1.14) and Gleam (0.29).
+We currently support Erlang, Elixir and Gleam.
 
 ## Installation
 
@@ -22,7 +23,10 @@ We currently support Erlang (26), Elixir (1.14) and Gleam (0.29).
 
 ### Docker
 
-Erland is already published on [GitHub Packages](https://github.com/erland-beam/erland/pkgs/container/erland). You can pull the latest stable release like this:
+Erland is already published on [GitHub Packages](https://github.com/erland-beam/erland/pkgs/container/erland). You can
+pull the latest stable release like this:
+
+> Currently, container supports Erlang (26), Elixir (1.14) and Gleam (0.29)
 
 ```bash
 docker pull ghcr.io/erland-beam/erland:main
@@ -36,7 +40,10 @@ docker run -p 8080:8080 ghcr.io/erland-beam/erland:main
 
 ### Cargo
 
-Erland is already published on [crates.io](https://crates.io/crates/erland). You must have install
+> ⚠️ You must have installed Erlang, Elixir and
+> Gleam before installing. ⚠️
+
+Erland is already published on [crates.io](https://crates.io/crates/erland). You can install with Cargo:
 
 ```bash
 cargo install erland
