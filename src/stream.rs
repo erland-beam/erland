@@ -1,16 +1,17 @@
 //! This module stream a command output to WebSocket.
 
+use std::process::{ExitStatus, Stdio};
+
+use futures::SinkExt;
+use tokio::{
+    io::{AsyncBufReadExt, BufReader},
+    process::Command,
+};
+
 use crate::{
     handler::WebSocketPack,
     messaging::{PlaygroundResponse, PlaygroundResponseType},
     result, send_packet,
-};
-
-use futures::SinkExt;
-use std::process::{ExitStatus, Stdio};
-use tokio::{
-    io::{AsyncBufReadExt, BufReader},
-    process::Command,
 };
 
 pub async fn run(pack: &WebSocketPack, command: String) -> result::Result<()> {

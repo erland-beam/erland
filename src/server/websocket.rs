@@ -1,6 +1,6 @@
 //! WebSocket for Erland Server.
 
-use crate::{handler, messaging::PlaygroundRequest, send_raw_packet};
+use std::sync::Arc;
 
 use axum::{
     extract::{
@@ -10,9 +10,10 @@ use axum::{
     response::IntoResponse,
 };
 use futures::{stream::StreamExt, SinkExt};
-use std::sync::Arc;
 use tokio::sync::Mutex;
 use tracing::{debug, info};
+
+use crate::{handler, messaging::PlaygroundRequest, send_raw_packet};
 
 /// WebSocket connection handler.
 pub async fn handle(socket: WebSocketUpgrade) -> impl IntoResponse {

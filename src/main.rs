@@ -1,5 +1,6 @@
-use clap::{value_parser, Parser};
 use std::net::{Ipv4Addr, SocketAddr};
+
+use clap::{value_parser, Parser};
 use tokio::fs;
 
 mod handler;
@@ -17,7 +18,7 @@ pub(crate) struct Args {
     pub port: u16,
 
     /// IPv4 address to listen.
-    #[arg(short, long, default_value_t = Ipv4Addr::new(0, 0, 0, 0), value_parser = value_parser!(Ipv4Addr))]
+    #[arg(short, long, default_value_t = Ipv4Addr::new(0, 0, 0, 0), value_parser = value_parser ! (Ipv4Addr))]
     pub bind: Ipv4Addr,
 
     /// Keeps output clean.

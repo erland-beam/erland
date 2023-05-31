@@ -1,8 +1,8 @@
 //! Result types for Erland Server.
 
-use crate::messaging::{PlaygroundResponse, PlaygroundResponseType};
-
 use thiserror::Error;
+
+use crate::messaging::{PlaygroundResponse, PlaygroundResponseType};
 
 pub type Result<T> = std::result::Result<T, self::Error>;
 

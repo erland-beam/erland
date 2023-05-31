@@ -1,10 +1,12 @@
 //! Gleam handler for Erland Server.
 
-use super::WebSocketPack;
+use std::{collections::HashMap, process::Stdio};
+
+use tokio::fs;
+
 use crate::{playground_path, result, stream};
 
-use std::{collections::HashMap, process::Stdio};
-use tokio::fs;
+use super::WebSocketPack;
 
 /// Macro for creating initialize script.
 macro_rules! format_command {

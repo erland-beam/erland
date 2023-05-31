@@ -1,8 +1,9 @@
 //! Messaging types for Erland Server.
 
+use std::collections::HashMap;
+
 use axum::extract::ws::Message;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 #[derive(Deserialize)]
 #[serde(rename_all = "snake_case")]

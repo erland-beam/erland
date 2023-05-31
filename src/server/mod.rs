@@ -1,7 +1,8 @@
 //! Erland WebServer.
 
-use axum::{routing::get, Router};
 use std::net::SocketAddr;
+
+use axum::{routing::get, Router};
 use tracing::info;
 
 mod websocket;

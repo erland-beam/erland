@@ -2,14 +2,14 @@
 
 use std::{collections::HashMap, sync::Arc};
 
+use axum::extract::ws::{Message, WebSocket};
+use futures::{stream::SplitSink, SinkExt};
+use tokio::{fs, sync::Mutex};
+
 use crate::{
     messaging::{PlaygroundEnvironment, PlaygroundMessage, PlaygroundRequest},
     playground_path, result, send_err, send_ok,
 };
-
-use axum::extract::ws::{Message, WebSocket};
-use futures::{stream::SplitSink, SinkExt};
-use tokio::{fs, sync::Mutex};
 
 mod elixir;
 mod erlang;
